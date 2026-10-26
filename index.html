@@ -205,6 +205,62 @@ button{cursor:pointer}
 .ach .a-prog i{display:block;height:100%;background:var(--muted)}
 @media (max-width:360px){.ach{grid-template-columns:1fr}}
 
+/* History */
+.hist-top{margin-bottom:-12px}
+h3{font-size:16px}
+.sec-note{font-size:12px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{border-top:3px solid var(--ink);padding-top:6px;min-width:0}
+.tile b{display:block;font-family:var(--f-display);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile span{font-size:11.5px;color:var(--muted)}
+@media (max-width:380px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.daydetail{margin-top:10px;border:2px solid var(--line);background:var(--surface);padding:12px;display:flex;flex-direction:column;gap:8px}
+.daydetail .dd-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.daydetail .dd-head b{font-family:var(--f-display);font-size:16px}
+.daydetail .dd-meta{font-size:12.5px;color:var(--muted)}
+.daydetail ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.daydetail li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.daydetail li .ok{color:var(--accent);font-weight:500} .daydetail li .miss{color:var(--hp)} .daydetail li .part{color:var(--xp)}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .bar-m{fill:var(--accent)} .chart .bar-m.dim{fill:color-mix(in srgb, var(--accent) 45%, var(--surface))}
+.chart .bar-m.sel{fill:var(--xp)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--muted);font-size:10px;font-family:var(--f-body)}
+.chart .val{fill:var(--ink);font-size:10.5px;font-family:var(--f-body);font-weight:500}
+.chart .hit{fill:transparent;cursor:pointer}
+.chart-cap{margin:6px 0 0;font-size:12.5px;color:var(--muted);min-height:1.4em}
+.events{list-style:none;margin:0;padding:0;border-top:2px solid var(--line)}
+.events li{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.events time{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.events .bad{color:var(--hp)} .events .good{color:var(--accent)} .events .fire{color:var(--fire)} .events .gold{color:var(--xp)}
+.events .empty-ev{grid-column:1/-1;color:var(--muted)}
+
+/* Focus */
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{border:2px solid var(--line);background:var(--surface);padding:6px 12px;font-size:13px}
+.presets button[aria-checked="true"]{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--surface))}
+.presets button:disabled{opacity:.5;cursor:default}
+.timer{position:relative;width:min(260px,72vw);aspect-ratio:1;max-width:100%;margin:0 auto}
+.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:var(--track);stroke-width:10}
+.ring-fill{fill:none;stroke:var(--accent);stroke-width:10;transition:stroke-dashoffset .25s linear}
+.timer.brk .ring-fill{stroke:var(--fire)}
+.timer-face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
+.phase{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.clock{font-family:var(--f-display);font-size:clamp(44px,14vw,58px);line-height:1;font-weight:700}
+.phase-sub{font-size:12.5px;color:var(--muted);min-height:1.2em}
+.dots{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;min-height:12px}
+.dots i{width:12px;height:12px;background:var(--accent)}
+.dots i.next{background:transparent;outline:2px solid var(--line);outline-offset:-2px}
+.timer-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.timer-actions .btn{min-width:150px}
+.preset-fields{display:flex;flex-direction:column;gap:12px}
+.pf{border:2px solid var(--line);padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pf .field:first-child{grid-column:1/-1}
+.pf .del{grid-column:1/-1;justify-self:start}
+.pf .field input{width:100%}
+.pf .field label{font-size:10.5px}
+
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--surface);border-top:2px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -260,8 +316,7 @@ button{cursor:pointer}
     </div>
     <ul class="habits" id="habitList"></ul>
     <div class="empty" id="emptyState" hidden>
-      <p>No habits yet. Add one, or start from a suggestion:</p>
-      <div class="starters" id="emptyStarters"></div>
+      <p>No habits yet. Tap Add habit to start.</p>
     </div>
     <div class="list-actions" id="listActions">
       <button type="button" class="link" id="addBtn"><span aria-hidden="true">+</span> Add habit</button>
@@ -270,8 +325,7 @@ button{cursor:pointer}
 
     <form class="sheet" id="habitForm" hidden novalidate>
       <h3 id="formTitle">New habit</h3>
-      <div class="starters" id="formStarters"></div>
-      <div class="field"><label for="fName">Name</label><input id="fName" maxlength="40" autocomplete="off" placeholder="e.g. Gesture drawing"></div>
+      <div class="field"><label for="fName">Name</label><input id="fName" maxlength="40" autocomplete="off" placeholder="Habit name"></div>
       <fieldset class="seg" id="kindSeg"><legend>Tracking</legend>
         <input type="radio" name="kind" id="kCheck" value="check" checked><label for="kCheck">Done / not done</label>
         <input type="radio" name="kind" id="kCount" value="count"><label for="kCount">Amount</label>
@@ -303,17 +357,6 @@ button{cursor:pointer}
     </form>
   </section>
 
-  <section aria-labelledby="histH">
-    <div class="sec-head"><h2 id="histH">History</h2><select id="heatFilter" aria-label="Show history for"></select></div>
-    <div class="heat-wrap">
-      <div class="months" id="heatMonths" aria-hidden="true"></div>
-      <div class="heat" id="heat" role="img" aria-label="Completion heatmap for the last 26 weeks"></div>
-    </div>
-    <div class="heat-foot">
-      <span id="heatInfo">Tap a day for details.</span>
-      <span class="legend">Less <i class="cell"></i><i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><i class="cell l4"></i> More</span>
-    </div>
-  </section>
 
   <details class="rules">
     <summary>How scoring works</summary>
@@ -326,6 +369,7 @@ button{cursor:pointer}
       <li>At 0 HP you fail: you drop to the start of the previous level. The XP you lost stays as a bloodstain. Finish every habit the next day to recover it, or it is gone for good.</li>
       <li>Each failure hollows you: max HP drops by 5, down to 25. Seven clean sweeps in a row restore it.</li>
       <li>Seven clean sweeps in a row also earn a bonfire (bank up to 2). Resting at one skips damage for the day, holds your streaks and refills HP.</li>
+      <li>Focus sessions earn half an XP per minute. Abandoning one costs 5 HP.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
     </ul>
   </details>
@@ -343,6 +387,85 @@ button{cursor:pointer}
     </div>
   </section>
   <p class="sync" id="sync"></p>
+  </div>
+
+  <div class="view" id="viewFocus" hidden>
+    <div class="sec-head hist-top"><h2>Focus</h2><button type="button" class="link quiet" id="presetEditBtn">Edit presets</button></div>
+    <div class="presets" id="presetRow" role="radiogroup" aria-label="Preset"></div>
+    <section class="timer" aria-live="off">
+      <svg viewBox="0 0 220 220" class="ring" aria-hidden="true">
+        <circle cx="110" cy="110" r="96" class="ring-track"/>
+        <circle cx="110" cy="110" r="96" class="ring-fill" id="ringFill" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+      </svg>
+      <div class="timer-face">
+        <span class="phase" id="phaseLabel">Ready</span>
+        <b class="clock num" id="clock">25:00</b>
+        <span class="phase-sub" id="phaseSub"></span>
+      </div>
+    </section>
+    <div class="dots" id="sessionDots" aria-label="Sessions finished today"></div>
+    <div class="timer-actions" id="timerActions"></div>
+    <div class="confirm" id="quitConfirm" hidden>
+      <p>Abandon this session? You take <span id="quitDmg">5</span> damage and it does not count.</p>
+      <div class="form-actions"><button type="button" class="btn danger" id="quitYes">Abandon</button><button type="button" class="btn ghost" id="quitNo">Keep going</button></div>
+    </div>
+    <form class="sheet" id="presetForm" hidden novalidate>
+      <h3>Presets</h3>
+      <div id="presetFields" class="preset-fields"></div>
+      <div class="form-actions"><button type="button" class="link" id="presetAdd">+ Add preset</button><span class="spacer"></span><button type="button" class="btn ghost" id="presetCancel">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+    </form>
+    <section class="tiles" aria-label="Focus totals">
+      <div class="tile"><b id="fToday">0</b><span>Min today</span></div>
+      <div class="tile"><b id="fWeek">0</b><span>Min this week</span></div>
+      <div class="tile"><b id="fTotal">0</b><span>Hours total</span></div>
+      <div class="tile"><b id="fQuit">0</b><span>Abandoned</span></div>
+    </section>
+    <section aria-labelledby="sessH">
+      <div class="sec-head"><h3 id="sessH">Recent sessions</h3></div>
+      <ol class="events" id="sessionList"></ol>
+    </section>
+    <p class="rules">Finished focus sessions earn half an XP per minute. Sessions can’t be paused. Abandoning one costs 5 HP and earns nothing. Breaks can be skipped freely. The timer keeps time if you leave the app, but your phone can’t alert you when it ends unless the app is open.</p>
+  </div>
+
+  <div class="view" id="viewHistory" hidden>
+    <div class="sec-head hist-top"><h2 id="histH">History</h2><select id="heatFilter" aria-label="Show history for"></select></div>
+    <section class="tiles" aria-label="Summary">
+      <div class="tile"><b id="hs7">—</b><span>Last 7 days</span></div>
+      <div class="tile"><b id="hs30">—</b><span>Last 30 days</span></div>
+      <div class="tile"><b id="hsRun">0</b><span id="hsRunL">Current run</span></div>
+      <div class="tile"><b id="hsBest">0</b><span id="hsBestL">Best run</span></div>
+    </section>
+
+    <section aria-labelledby="heatH">
+      <div class="sec-head"><h3 id="heatH">Last 26 weeks</h3></div>
+      <div class="heat-wrap">
+        <div class="months" id="heatMonths" aria-hidden="true"></div>
+        <div class="heat" id="heat" role="img" aria-label="Completion heatmap for the last 26 weeks"></div>
+      </div>
+      <div class="heat-foot">
+        <span>Tap a day for details.</span>
+        <span class="legend">Less <i class="cell"></i><i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><i class="cell l4"></i> More</span>
+      </div>
+      <div class="daydetail" id="dayDetail" hidden></div>
+    </section>
+
+    <section aria-labelledby="weekH">
+      <div class="sec-head"><h3 id="weekH">Weekly completion</h3><span class="sec-note">12 weeks</span></div>
+      <div class="chart" id="weekChart"></div>
+      <p class="chart-cap" id="weekCap">Tap a bar for details.</p>
+    </section>
+
+    <section aria-labelledby="dowH">
+      <div class="sec-head"><h3 id="dowH">By day of week</h3><span class="sec-note">12 weeks</span></div>
+      <div class="chart" id="dowChart"></div>
+      <p class="chart-cap" id="dowCap"></p>
+    </section>
+
+    <section aria-labelledby="logH">
+      <div class="sec-head"><h3 id="logH">Log</h3></div>
+      <ol class="events" id="eventList"></ol>
+      <button type="button" class="link" id="moreEvents" hidden>Show more</button>
+    </section>
   </div>
 
   <div class="view" id="viewTrophies" hidden>
@@ -365,6 +488,14 @@ button{cursor:pointer}
     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h2v2H3zM7 4h10v2H7zM3 9h2v2H3zM7 9h10v2H7zM3 14h2v2H3zM7 14h10v2H7z" fill="currentColor"/></svg>
     <span>Today</span>
   </button>
+  <button type="button" class="tab" id="tabFocus">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 1h4v2H8zM9 3h2v2H9zM5 5h10v2H5zM3 7h2v8H3zM15 7h2v8h-2zM5 15h10v2H5zM9 8h2v4H9zM11 11h2v2h-2z" fill="currentColor"/></svg>
+    <span>Focus</span>
+  </button>
+  <button type="button" class="tab" id="tabHistory">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3h16v15H2zm2 4v9h12V7zm1 2h2v2H5zm4 0h2v2H9zm4 0h2v2h-2zm-8 4h2v2H5zm4 0h2v2H9z" fill="currentColor" fill-rule="evenodd"/></svg>
+    <span>History</span>
+  </button>
   <button type="button" class="tab" id="tabTrophies">
     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2h10v2h3v4h-1v1h-2v1h-1v1h-2v2h2v2h2v3H4v-3h2v-2h2v-2H6v-1H5V9H3V8H2V4h3zm0 4H4v1h1zm10 0v1h1V6z" fill="currentColor"/></svg>
     <span>Trophies <b id="tabCount" class="num"></b></span>
@@ -382,15 +513,8 @@ button{cursor:pointer}
 <script>
 (function(){
 const KEY='streakwork:v1';
-const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5;
+const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5;
 const DNAME={1:'Easy',2:'Medium',3:'Hard'};
-const STARTERS=[
-  {name:'Gesture drawing',kind:'count',target:30,unit:'min',diff:2},
-  {name:'Animation exercise',kind:'check',diff:3},
-  {name:'Background study',kind:'check',diff:2},
-  {name:'Read',kind:'count',target:20,unit:'pages',diff:1},
-  {name:'Lights out by midnight',kind:'check',diff:1},
-];
 const $=id=>document.getElementById(id);
 const CHECK_SVG='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="var(--accent-ink)" stroke-width="3" stroke-linecap="square"/></svg>';
 const FLAME_SVG='<svg viewBox="0 0 12 14" aria-hidden="true"><path fill="currentColor" d="M6 0c1 3 4 4.5 4 8a4 4 0 0 1-8 0c0-1.6.7-2.6 1.5-3.4C3.6 6 4.4 7 5.2 7 4.7 4.5 5 2 6 0z"/></svg>';
@@ -411,9 +535,16 @@ function normalize(){
   if(!Array.isArray(state.habits))state.habits=[];
   if(!state.log||typeof state.log!=='object')state.log={};
   if(!state.rest||typeof state.rest!=='object')state.rest={};
+  if(!Array.isArray(state.sessions))state.sessions=[];
+  if(!Array.isArray(state.presets)||!state.presets.length)state.presets=[
+    {id:'p1',name:'Classic',f:25,b:5,lb:15,n:4},
+    {id:'p2',name:'Deep work',f:50,b:10,lb:20,n:3}];
+  if(!state.presets.some(p=>p.id===state.presetId))state.presetId=state.presets[0].id;
+  if(state.focus&&typeof state.focus!=='object')state.focus=null;
   state.updated=state.updated||0; state.v=1;
 }
-try{const c=localStorage.getItem(KEY); if(c){state=JSON.parse(c);normalize()}}catch(e){}
+try{const c=localStorage.getItem(KEY); if(c){state=JSON.parse(c)}}catch(e){}
+normalize();
 function cache(){try{localStorage.setItem(KEY,JSON.stringify(state));saveError=false}catch(e){saveError=true}}
 
 /* ---------- game math (derived entirely from the log) ---------- */
@@ -430,15 +561,18 @@ function compute(){
   const H=state.habits, rest=state.rest||{};
   const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
     streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
-    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
+    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
   H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
+  const FB={};
+  for(const x of state.sessions){const o=FB[x.d]||(FB[x.d]={done:0,min:0,quit:0});if(x.ok){o.done++;o.min+=x.m}else o.quit++}
   let low=false,lastPerfect=null;
   for(let d=start;d<=today;d=addDays(d,1)){
     const act=H.filter(h=>isActive(h,d)); if(!act.length)continue;
     let resting=false;
-    if(rest[d]&&r.bonfires>0){r.bonfires--;resting=true;r.restDays[d]=true}
+    if(rest[d]&&r.bonfires>0){r.bonfires--;resting=true;r.restDays[d]=true;r.events.push({d,t:'fire',x:'Rested at a bonfire'})}
+    const lvBefore=levelInfo(r.xp).L, topBefore=r.maxLevel;
     const ended=d<today;
     const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0,done=0;
     r.maxActive=Math.max(r.maxActive,act.length);
@@ -452,6 +586,11 @@ function compute(){
       else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])}}
       gained+=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);
     }
+    const fs=FB[d];
+    if(fs){
+      gained+=fs.min*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
+      if(fs.quit){dmg+=QUIT_DMG*fs.quit;r.events.push({d,t:'bad',x:'Abandoned '+(fs.quit===1?'a focus session':fs.quit+' focus sessions')+': \u2212'+QUIT_DMG*fs.quit+' HP'})}
+    }
     r.xp+=gained; r.earned+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
     r.maxDone=Math.max(r.maxDone,done); if(done)r.daysActive++;
     if(all){
@@ -459,29 +598,32 @@ function compute(){
       if(parse(d).getDay()===0&&lastPerfect===addDays(d,-1))r.weekends++;
       lastPerfect=d;
       if(r.perfRun%7===0){
-        if(r.bonfires<BONFIRE_MAX)r.bonfires++;
-        if(r.hollow>0){r.hollow=0;r.maxHp=HPMAX;r.kindled++}
+        if(r.bonfires<BONFIRE_MAX){r.bonfires++;r.events.push({d,t:'fire',x:'Earned a bonfire (7 clean sweeps in a row)'})}
+        if(r.hollow>0){r.hollow=0;r.maxHp=HPMAX;r.kindled++;r.events.push({d,t:'good',x:'Hollowing cured. Max HP back to '+HPMAX})}
       }
     }
     else if(ended&&!resting)r.perfRun=0;
     // bloodstain: recover it with a clean sweep on the next day, or lose it
     if(r.stain&&d>=r.stain.until){
-      if(all){r.xp+=r.stain.amt;r.recovered++;r.recoveredXP+=r.stain.amt;r.stain=null}
-      else if(ended){r.stainLost={amt:r.stain.amt,d:d};r.stain=null}
+      if(all){r.xp+=r.stain.amt;r.recovered++;r.recoveredXP+=r.stain.amt;r.events.push({d,t:'good',x:'Recovered bloodstain: +'+r.stain.amt+' XP'});r.stain=null}
+      else if(ended){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'});r.stain=null}
     }
     if(ended){if(dmg>0)r.noDmgRun=0;else{r.noDmgRun++;r.bestNoDmg=Math.max(r.bestNoDmg,r.noDmgRun)}}
     if(dmg>0){r.hp-=dmg;r.dayDmg[d]=Math.round(dmg);if(r.hp>0&&r.hp<=10)low=true}
     if(r.hp<=0){
       const li=levelInfo(r.xp), nx=li.L>1?li.floor-need(li.L-1):0;
-      if(r.stain)r.stainLost={amt:r.stain.amt,d:d};
+      if(r.stain){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'})}
       r.stain={amt:Math.round(r.xp-nx),from:d,until:addDays(d,1)};
       r.xp=nx;r.ko++;r.lastKO=d;r.lastKOFrom=li.L;r.lastKOTo=levelInfo(nx).L;
       r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=HPMAX-5*r.hollow;r.hp=r.maxHp;low=false;
+      r.events.push({d,t:'bad',x:'Failed. Level '+r.lastKOFrom+' \u2192 '+r.lastKOTo+', max HP '+r.maxHp});
     }
     else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+REGEN)}
     if(low&&r.hp>=r.maxHp){r.comeback=true;low=false}
-    r.maxLevel=Math.max(r.maxLevel,levelInfo(r.xp).L);
-    for(const a of ACH){if(!r.unlocked[a.id]){const p=a.f(r);if(p[0]>=p[1])r.unlocked[a.id]=d}}
+    const lvNow=levelInfo(r.xp).L;
+    if(lvNow>lvBefore)r.events.push({d,t:'gold',x:(lvNow>topBefore?'Reached level ':'Regained level ')+lvNow});
+    r.maxLevel=Math.max(r.maxLevel,lvNow);
+    for(const a of ACH){if(!r.unlocked[a.id]){const p=a.f(r);if(p[0]>=p[1]){r.unlocked[a.id]=d;r.events.push({d,t:'gold',x:'Unlocked: '+a.name})}}}
   }
   r.xp=Math.round(r.xp); r.earned=Math.round(r.earned); r.hp=Math.max(0,Math.round(r.hp));
   return r;
@@ -597,7 +739,7 @@ function render(){
   R=compute();
   if(typeof state.seenKO!=='number'){state.seenKO=R.ko;cache()}
   if(R.ko>state.seenKO&&$('death').hidden)showDeath();
-  renderHud();renderDay();renderHeat();renderStats();renderAch();renderSync();
+  renderHud();renderDay();renderHistory();renderStats();renderAch();renderSync();
 }
 function renderHud(){
   const li=levelInfo(R.xp);
@@ -643,7 +785,6 @@ function renderDay(){
   const list=$('habitList');list.textContent='';
   const items=editMode?state.habits.filter(h=>!h.archived||h.archived>today):act;
   $('emptyState').hidden=!!state.habits.length||!$('habitForm').hidden;
-  if(!state.habits.length)fillStarters($('emptyStarters'));
   if(!editMode&&state.habits.length&&!act.length){
     const li=document.createElement('li');li.className='day-sum';li.textContent='No habits were active on this day.';list.appendChild(li);
   }
@@ -693,30 +834,32 @@ function renderDay(){
   $('addBtn').disabled=!ready;$('editToggle').disabled=!ready;
   $('listActions').hidden=!$('habitForm').hidden;
 }
-function fillStarters(box){
-  box.textContent='';
-  const have=new Set(state.habits.filter(h=>!h.archived).map(h=>h.name.toLowerCase()));
-  for(const s of STARTERS){
-    if(have.has(s.name.toLowerCase()))continue;
-    const b=document.createElement('button');b.type='button';b.className='chip';
-    b.textContent=s.name+(s.kind==='count'?' · '+s.target+' '+s.unit:'');
-    b.disabled=!ready;
-    b.addEventListener('click',()=>{
-      if(box.id==='emptyStarters'){addHabit(s);return}
-      $('fName').value=s.name;$(s.kind==='count'?'kCount':'kCheck').checked=true;
-      $('fTarget').value=s.target||30;$('fUnit').value=s.unit||'';$('d'+s.diff).checked=true;syncKind();
-    });
-    box.appendChild(b);
-  }
+let evLimit=15, weekPick=null, dowPick=null;
+function dayVal(d){
+  // completion 0..1 for the current filter, or undefined if nothing was tracked that day
+  if(heatSel==='all')return R.heat[d];
+  const h=state.habits.find(x=>x.id===heatSel);
+  return h&&isActive(h,d)?fracOf(h,(state.log[d]||{})[h.id]):undefined;
 }
-function renderHeat(){
+function avgOver(days){let s=0,n=0;for(const d of days){const v=dayVal(d);if(v!==undefined&&!R.restDays[d]){s+=v;n++}}return n?s/n:null}
+function pct(v){return v===null||v===undefined?'—':Math.round(v*100)+'%'}
+function lastDays(n,endIncl){const out=[];for(let i=0;i<n;i++)out.push(addDays(endIncl,-i));return out}
+function renderHistory(){
   const sel=$('heatFilter');const prev=heatSel;sel.textContent='';
-  const o=new Option('All habits','all');sel.add(o);
+  sel.add(new Option('All habits','all'));
   for(const h of state.habits)sel.add(new Option(h.name+(h.archived&&h.archived<=today?' (archived)':''),h.id));
   heatSel=[...sel.options].some(x=>x.value===prev)?prev:'all';sel.value=heatSel;
+  // summary tiles: ended days only, so today's unfinished habits don't drag the rate down
+  const yd=addDays(today,-1);
+  $('hs7').textContent=pct(avgOver(lastDays(7,yd)));
+  $('hs30').textContent=pct(avgOver(lastDays(30,yd)));
+  if(heatSel==='all'){$('hsRun').textContent=R.perfRun;$('hsRunL').textContent='Clean-sweep run';$('hsBest').textContent=R.bestPerfRun;$('hsBestL').textContent='Best run'}
+  else{$('hsRun').textContent=R.streak[heatSel]||0;$('hsRunL').textContent='Current streak';$('hsBest').textContent=R.best[heatSel]||0;$('hsBestL').textContent='Best streak'}
+  renderHeatGrid();renderDayDetail();renderWeekChart();renderDowChart();renderEvents();
+}
+function renderHeatGrid(){
   const t=parse(today), start=addDays(today,-t.getDay()-7*25);
   const grid=$('heat'),months=$('heatMonths');grid.textContent='';months.textContent='';
-  const h=heatSel==='all'?null:state.habits.find(x=>x.id===heatSel);
   for(let c=0;c<26;c++){
     const ms=document.createElement('span');
     for(let r=0;r<7;r++){
@@ -726,8 +869,7 @@ function renderHeat(){
       let cls='cell';
       if(d>today)cls+=' future';
       else{
-        let v;
-        if(!h)v=R.heat[d];else v=isActive(h,d)?fracOf(h,(state.log[d]||{})[h.id]):undefined;
+        const v=dayVal(d);
         if(v===undefined)cls+=' none';
         else if(v>=1)cls+=' l4';else if(v>=.67)cls+=' l3';else if(v>=.34)cls+=' l2';else if(v>0)cls+=' l1';
       }
@@ -737,26 +879,106 @@ function renderHeat(){
     }
     months.appendChild(ms);
   }
-  // keep month labels from colliding: drop a label if the previous one is within 2 columns
   let last=-9;[...months.children].forEach((s,i)=>{if(s.textContent){if(i-last<3)s.textContent='';else last=i}});
-  heatInfoText();
 }
-function heatInfoText(){
-  const el=$('heatInfo');const d=heatPick;
-  if(!d||d>today){el.textContent='Tap a day for details.';return}
-  const label=fmt(d,{weekday:'short',month:'short',day:'numeric'});
-  const day=state.log[d]||{};
-  if(heatSel==='all'){
-    const act=activeOn(d);
-    if(!act.length){el.textContent=label+' · not tracked';return}
-    const n=act.filter(h=>fracOf(h,day[h.id])>=1).length;
-    el.textContent=label+' · '+n+' of '+act.length+' done · +'+(R.dayXP[d]||0)+' XP'+(R.dayDmg[d]?' · −'+R.dayDmg[d]+' HP':'');
-  }else{
-    const h=state.habits.find(x=>x.id===heatSel);
-    if(!h||!isActive(h,d)){el.textContent=label+' · not tracked';return}
-    const v=day[h.id]||0;
-    el.textContent=label+' · '+(h.kind==='count'?v+'/'+h.target+(h.unit?' '+h.unit:''):(v?'done':(d<today?'missed':'not done yet')));
+function renderDayDetail(){
+  const box=$('dayDetail'),d=heatPick;
+  if(!d||d>today){box.hidden=true;return}
+  box.hidden=false;box.textContent='';
+  const head=document.createElement('div');head.className='dd-head';
+  const b=document.createElement('b');b.textContent=fmt(d,{weekday:'long',month:'short',day:'numeric'});
+  const meta=document.createElement('span');meta.className='dd-meta';
+  const bits=[];
+  if(R.dayXP[d])bits.push('+'+R.dayXP[d]+' XP');
+  if(R.dayDmg[d])bits.push('−'+R.dayDmg[d]+' HP');
+  if(R.restDays[d])bits.push('Rested at a bonfire');
+  if(R.dayFocus[d]&&R.dayFocus[d].min)bits.push('Focus '+R.dayFocus[d].min+' min');
+  meta.textContent=bits.join(' · ');
+  head.append(b,meta);box.appendChild(head);
+  const act=activeOn(d), day=state.log[d]||{};
+  const ul=document.createElement('ul');
+  if(!act.length){const li=document.createElement('li');li.textContent='Nothing was tracked this day.';ul.appendChild(li)}
+  for(const h of act){
+    const v=day[h.id]||0,f=fracOf(h,v);
+    const li=document.createElement('li');
+    const n=document.createElement('span');n.textContent=h.name;
+    const st=document.createElement('span');
+    if(h.kind==='count'){st.textContent=v+'/'+h.target+(h.unit?' '+h.unit:'');st.className=f>=1?'ok':v?'part':(d<today?'miss':'')}
+    else{st.textContent=f>=1?'Done':(d<today?'Missed':'Not yet');st.className=f>=1?'ok':(d<today?'miss':'')}
+    li.append(n,st);ul.appendChild(li);
   }
+  box.appendChild(ul);
+  const evs=R.events.filter(e=>e.d===d);
+  for(const e of evs){const p=document.createElement('div');p.className='dd-meta';p.textContent=e.x;box.appendChild(p)}
+  if(canEditDate(d)){
+    const btn=document.createElement('button');btn.type='button';btn.className='link';btn.textContent=d===today?'Open today':'Edit this day';
+    btn.addEventListener('click',()=>{viewDate=d;showView('today');render()});box.appendChild(btn);
+  }
+}
+const SVGNS='http://www.w3.org/2000/svg';
+function el(tag,attrs,text){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;return e}
+function barChart(box,items,pick,onPick,labelEvery,showVals){
+  // items: [{label, v (0..1|null), key}]
+  const W=340,H=150,top=16,bottom=22,left=28,right=4,ph=H-top-bottom,pw=W-left-right;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img'});
+  for(const g of [0,.5,1]){
+    const y=top+ph*(1-g);
+    svg.appendChild(el('line',{x1:left,x2:W-right,y1:y,y2:y,class:'grid'}));
+    svg.appendChild(el('text',{x:left-6,y:y+3.5,'text-anchor':'end',class:'ax'},Math.round(g*100)+'%'));
+  }
+  const n=items.length,slot=pw/n,bw=Math.min(22,slot-6);
+  items.forEach((it,i)=>{
+    const x=left+i*slot+(slot-bw)/2;
+    if(it.v!==null){
+      const h=Math.max(it.v>0?2:0,ph*it.v),y=top+ph-h;
+      const r=Math.min(4,h/2,bw/2);
+      // bar with rounded data end, square at baseline
+      const path='M'+x+' '+(top+ph)+'V'+(y+r)+'Q'+x+' '+y+' '+(x+r)+' '+y+'H'+(x+bw-r)+'Q'+(x+bw)+' '+y+' '+(x+bw)+' '+(y+r)+'V'+(top+ph)+'Z';
+      if(h>0)svg.appendChild(el('path',{d:path,class:'bar-m'+(it.key===pick?' sel':(it.dim?' dim':''))}));
+      if(showVals||it.key===pick)svg.appendChild(el('text',{x:x+bw/2,y:y-4,'text-anchor':'middle',class:'val'},Math.round(it.v*100)+'%'));
+    }
+    if(i%labelEvery===0||labelEvery===1)svg.appendChild(el('text',{x:x+bw/2,y:H-6,'text-anchor':'middle',class:'ax'},it.label));
+    const hit=el('rect',{x:left+i*slot,y:top,width:slot,height:ph+bottom,class:'hit'});
+    hit.addEventListener('click',()=>onPick(it.key));
+    svg.appendChild(hit);
+  });
+  svg.setAttribute('aria-label',items.map(it=>it.label+' '+(it.v===null?'no data':Math.round(it.v*100)+'%')).join(', '));
+  box.textContent='';box.appendChild(svg);
+}
+function weekStart(d){return addDays(d,-parse(d).getDay())}
+function renderWeekChart(){
+  const ws=weekStart(today), items=[];
+  for(let i=11;i>=0;i--){
+    const s0=addDays(ws,-7*i),days=[];
+    for(let k=0;k<7;k++){const d=addDays(s0,k);if(d<today)days.push(d)}
+    items.push({key:s0,label:fmt(s0,{month:'numeric',day:'numeric'}),v:avgOver(days),dim:i===0});
+  }
+  barChart($('weekChart'),items,weekPick,k=>{weekPick=weekPick===k?null:k;renderWeekChart()},3,false);
+  const it=items.find(x=>x.key===weekPick);
+  $('weekCap').textContent=it?('Week of '+fmt(it.key)+': '+pct(it.v)+' done'+(it.dim?' so far':'')):'Tap a bar for details. The lighter bar is this week, still in progress.';
+}
+function renderDowChart(){
+  const names=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],sums=[0,0,0,0,0,0,0],cnt=[0,0,0,0,0,0,0];
+  for(let i=1;i<=84;i++){const d=addDays(today,-i),v=dayVal(d);if(v!==undefined&&!R.restDays[d]){const w=parse(d).getDay();sums[w]+=v;cnt[w]++}}
+  const items=names.map((n,i)=>({key:i,label:n.slice(0,2),v:cnt[i]?sums[i]/cnt[i]:null}));
+  barChart($('dowChart'),items,dowPick,k=>{dowPick=dowPick===k?null:k;renderDowChart()},1,true);
+  const valid=items.filter(x=>x.v!==null);
+  if(dowPick!==null){const it=items[dowPick];$('dowCap').textContent=names[dowPick]+'s: '+pct(it.v)+' done across '+cnt[dowPick]+' day'+(cnt[dowPick]===1?'':'s')+'.';}
+  else if(valid.length>=3){const lo=valid.reduce((a,b)=>b.v<a.v?b:a);const hi=valid.reduce((a,b)=>b.v>a.v?b:a);
+    $('dowCap').textContent=lo.v===hi.v?'Even across the week.':'Weakest: '+names[lo.key]+' ('+pct(lo.v)+'). Strongest: '+names[hi.key]+' ('+pct(hi.v)+').';}
+  else $('dowCap').textContent='Needs a few weeks of history.';
+}
+function renderEvents(){
+  const ol=$('eventList');ol.textContent='';
+  const evs=R.events.slice().reverse();
+  if(!evs.length){const li=document.createElement('li');const sp=document.createElement('span');sp.className='empty-ev';sp.textContent='Level-ups, failures, bloodstains, bonfires and achievements will be logged here.';li.appendChild(sp);ol.appendChild(li)}
+  for(const e of evs.slice(0,evLimit)){
+    const li=document.createElement('li');
+    const tm=document.createElement('time');tm.dateTime=e.d;tm.textContent=fmt(e.d);
+    const x=document.createElement('span');x.className=e.t;x.textContent=e.x;
+    li.append(tm,x);ol.appendChild(li);
+  }
+  $('moreEvents').hidden=evs.length<=evLimit;
 }
 function renderStats(){
   $('sBest').textContent=bestStreak(R);$('sChecks').textContent=R.checks;$('sPerfect').textContent=R.perfect;$('sKO').textContent=R.ko;
@@ -841,7 +1063,6 @@ function openForm(h){
   $('fTarget').value=h&&h.kind==='count'?h.target:30;$('fUnit').value=h?h.unit||'':'';
   $('d'+(h?h.diff:2)).checked=true;
   $('archiveBtn').hidden=!h;$('deleteBtn').hidden=!h;$('archiveConfirm').hidden=true;$('deleteConfirm').hidden=true;
-  $('formStarters').hidden=!!h;if(!h)fillStarters($('formStarters'));
   syncKind();
   $('habitForm').hidden=false;render();
   $('fName').focus({preventScroll:false});
@@ -902,20 +1123,147 @@ $('archiveYes').addEventListener('click',()=>{
 });
 $('prevDay').addEventListener('click',()=>{const d=addDays(viewDate,-1);if(canEditDate(d)){viewDate=d;render()}});
 $('nextDay').addEventListener('click',()=>{if(viewDate<today){viewDate=addDays(viewDate,1);render()}});
-$('heatFilter').addEventListener('change',e=>{heatSel=e.target.value;renderHeat()});
+$('heatFilter').addEventListener('change',e=>{heatSel=e.target.value;weekPick=null;dowPick=null;renderHistory()});
 $('heat').addEventListener('click',e=>{
   const d=e.target&&e.target.dataset&&e.target.dataset.d;if(!d||d>today)return;
-  heatPick=d;if(canEditDate(d))viewDate=d;render();
+  heatPick=heatPick===d?null:d;renderHeatGrid();renderDayDetail();
 });
+$('moreEvents').addEventListener('click',()=>{evLimit+=30;renderEvents()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&todayStr()!==today){viewDate=todayStr();render()}});
 
 function showView(v){
-  const t=v==='trophies';
-  $('viewToday').hidden=t;$('viewTrophies').hidden=!t;
-  $('tabToday').toggleAttribute('aria-current',!t);$('tabTrophies').toggleAttribute('aria-current',t);
-  if(t)$('tabTrophies').setAttribute('aria-current','page');else $('tabToday').setAttribute('aria-current','page');
+  const map={today:['viewToday','tabToday'],focus:['viewFocus','tabFocus'],history:['viewHistory','tabHistory'],trophies:['viewTrophies','tabTrophies']};
+  for(const k in map){const on=k===v;$(map[k][0]).hidden=!on;if(on)$(map[k][1]).setAttribute('aria-current','page');else $(map[k][1]).removeAttribute('aria-current')}
   window.scrollTo(0,0);
 }
+$('tabHistory').addEventListener('click',()=>showView('history'));
+$('tabFocus').addEventListener('click',()=>{showView('focus');renderFocus()});
+
+/* ---------- focus timer ---------- */
+let audioCtx=null, wakeLock=null, editingPresets=null;
+function preset(){return state.presets.find(p=>p.id===state.presetId)||state.presets[0]}
+function mmss(ms){const t=Math.max(0,Math.ceil(ms/1000));return pad(Math.floor(t/60))+':'+pad(t%60)}
+function doneToday(){return state.sessions.filter(x=>x.ok&&x.d===today).length}
+function chime(){
+  try{
+    if(!audioCtx)return;audioCtx.resume&&audioCtx.resume();
+    const t0=audioCtx.currentTime;
+    [0,.32,.64].forEach((o,i)=>{const os=audioCtx.createOscillator(),g=audioCtx.createGain();os.type='square';os.frequency.value=i===2?988:784;
+      g.gain.setValueAtTime(.0001,t0+o);g.gain.exponentialRampToValueAtTime(.18,t0+o+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+o+.26);
+      os.connect(g);g.connect(audioCtx.destination);os.start(t0+o);os.stop(t0+o+.3)});
+  }catch(e){}
+}
+async function holdScreen(on){
+  try{
+    if(on&&!wakeLock&&navigator.wakeLock&&document.visibilityState==='visible'){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null})}
+    if(!on&&wakeLock){await wakeLock.release();wakeLock=null}
+  }catch(e){wakeLock=null}
+}
+function unlockAudio(){try{if(!audioCtx){const A=window.AudioContext||window.webkitAudioContext;if(A)audioCtx=new A()}audioCtx&&audioCtx.resume&&audioCtx.resume()}catch(e){}}
+function startPhase(phase,minutes){
+  unlockAudio();
+  const now=Date.now();
+  state.focus={phase,preset:preset().id,startedAt:now,endsAt:now+minutes*60000,m:minutes};
+  $('quitConfirm').hidden=true;
+  state.updated=Date.now();cache();holdScreen(true);renderFocus();
+}
+function checkFocus(){
+  const f=state.focus;if(!f||f.phase==='ready')return;
+  if(Date.now()<f.endsAt)return;
+  if(f.phase==='focus'){
+    state.sessions.push({s:f.startedAt,e:f.endsAt,m:f.m,ok:1,d:ymd(new Date(f.endsAt))});
+    state.focus={phase:'ready',after:'focus'};
+    if(document.visibilityState==='visible')chime();
+    holdScreen(false);commit();
+  }else{
+    state.focus={phase:'ready',after:'break'};
+    if(document.visibilityState==='visible')chime();
+    holdScreen(false);state.updated=Date.now();cache();
+  }
+  renderFocus();
+}
+function nextBreak(){const p=preset(),n=doneToday();return n>0&&n%p.n===0?{m:p.lb,long:true}:{m:p.b,long:false}}
+function renderFocus(){
+  if($('viewFocus').hidden&&!(state.focus&&state.focus.phase!=='ready'))return;
+  const p=preset(),f=state.focus,running=f&&(f.phase==='focus'||f.phase==='break');
+  // presets
+  const row=$('presetRow');row.textContent='';
+  for(const x of state.presets){
+    const b=document.createElement('button');b.type='button';b.setAttribute('role','radio');b.setAttribute('aria-checked',x.id===p.id?'true':'false');
+    b.textContent=x.name+' · '+x.f+'/'+x.b;b.disabled=!!running;
+    b.addEventListener('click',()=>{state.presetId=x.id;state.updated=Date.now();cache();renderFocus()});row.appendChild(b);
+  }
+  $('presetEditBtn').disabled=!!running;
+  // clock
+  const timer=document.querySelector('.timer');timer.classList.toggle('brk',!!(f&&f.phase==='break'));
+  let label='Ready',sub='',left=p.f*60000,frac=0;
+  if(running){left=f.endsAt-Date.now();frac=1-left/(f.m*60000);label=f.phase==='focus'?'Focus':'Break';
+    sub=f.phase==='focus'?'Ends at '+new Date(f.endsAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):'Back to work at '+new Date(f.endsAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}
+  else if(f&&f.after==='focus'){const nb=nextBreak();label='Session done';left=nb.m*60000;sub=(nb.long?'Long break':'Break')+' is '+nb.m+' min';}
+  else if(f&&f.after==='break'){label='Break over';sub='Ready when you are';}
+  $('phaseLabel').textContent=label;$('phaseSub').textContent=sub;$('clock').textContent=mmss(left);
+  $('ringFill').setAttribute('stroke-dashoffset',String(Math.round(1000*(1-Math.max(0,Math.min(1,frac))))));
+  // dots
+  const dots=$('sessionDots');dots.textContent='';const n=doneToday();
+  const shown=Math.max(p.n,Math.ceil((n+1)/p.n)*p.n);
+  for(let i=0;i<Math.min(shown,24);i++){const d=document.createElement('i');if(i>=n)d.className='next';dots.appendChild(d)}
+  // actions
+  const act=$('timerActions');act.textContent='';
+  const btn=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=t;b.addEventListener('click',fn);act.appendChild(b);return b};
+  if(f&&f.phase==='focus'){btn('Abandon','btn danger',()=>{$('quitDmg').textContent=QUIT_DMG;$('quitConfirm').hidden=false})}
+  else if(f&&f.phase==='break'){btn('End break','btn ghost',()=>{state.focus={phase:'ready',after:'break'};holdScreen(false);state.updated=Date.now();cache();renderFocus()})}
+  else if(f&&f.after==='focus'){const nb=nextBreak();btn('Start '+(nb.long?'long ':'')+'break','btn primary',()=>startPhase('break',nb.m));btn('Skip break','btn ghost',()=>startPhase('focus',p.f))}
+  else btn('Start focus · '+p.f+' min','btn primary',()=>startPhase('focus',p.f));
+  // totals
+  const ws=addDays(today,-parse(today).getDay());
+  let tMin=0,wMin=0,all=0,quit=0;
+  for(const x of state.sessions){if(x.ok){all+=x.m;if(x.d===today)tMin+=x.m;if(x.d>=ws)wMin+=x.m}else quit++}
+  $('fToday').textContent=tMin;$('fWeek').textContent=wMin;$('fTotal').textContent=(all/60).toFixed(all<600?1:0);$('fQuit').textContent=quit;
+  // recent
+  const ol=$('sessionList');ol.textContent='';
+  const rec=state.sessions.slice(-12).reverse();
+  if(!rec.length){const li=document.createElement('li');const sp=document.createElement('span');sp.className='empty-ev';sp.textContent='Finished and abandoned sessions show up here.';li.appendChild(sp);ol.appendChild(li)}
+  for(const x of rec){
+    const li=document.createElement('li');const tm=document.createElement('time');
+    const dt=new Date(x.e);tm.textContent=(x.d===today?'':fmt(x.d)+' ')+dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    const sp=document.createElement('span');
+    if(x.ok){sp.textContent=x.m+' min focus · +'+Math.round(x.m*FOCUS_XP)+' XP';}
+    else{sp.className='bad';sp.textContent='Abandoned after '+Math.max(0,Math.floor((x.e-x.s)/60000))+' of '+x.m+' min · −'+QUIT_DMG+' HP';}
+    li.append(tm,sp);ol.appendChild(li);
+  }
+}
+$('quitNo').addEventListener('click',()=>{$('quitConfirm').hidden=true});
+$('quitYes').addEventListener('click',()=>{
+  const f=state.focus;if(!f||f.phase!=='focus')return;
+  state.sessions.push({s:f.startedAt,e:Date.now(),m:f.m,ok:0,d:today});
+  state.focus=null;$('quitConfirm').hidden=true;holdScreen(false);commit();renderFocus();toast('Session abandoned · −'+QUIT_DMG+' HP');
+});
+function renderPresetForm(){
+  const box=$('presetFields');box.textContent='';
+  editingPresets.forEach((x,i)=>{
+    const w=document.createElement('div');w.className='pf';
+    const field=(lab,key,type)=>{const f=document.createElement('div');f.className='field';const id='pf-'+i+'-'+key;
+      const l=document.createElement('label');l.htmlFor=id;l.textContent=lab;const inp=document.createElement('input');inp.id=id;inp.type=type;
+      if(type==='number'){inp.min='1';inp.max='240';inp.inputMode='numeric'}else inp.maxLength=20;
+      inp.value=x[key];inp.addEventListener('input',()=>{x[key]=type==='number'?inp.value:inp.value});f.append(l,inp);w.appendChild(f)};
+    field('Name','name','text');field('Focus min','f','number');field('Break','b','number');field('Long break','lb','number');field('Long every','n','number');
+    if(editingPresets.length>1){const d=document.createElement('button');d.type='button';d.className='link danger del';d.textContent='Delete preset';
+      d.addEventListener('click',()=>{editingPresets.splice(i,1);renderPresetForm()});w.appendChild(d)}
+    box.appendChild(w);
+  });
+}
+$('presetEditBtn').addEventListener('click',()=>{editingPresets=JSON.parse(JSON.stringify(state.presets));renderPresetForm();$('presetForm').hidden=false});
+$('presetAdd').addEventListener('click',()=>{editingPresets.push({id:'p'+Date.now().toString(36),name:'Custom',f:30,b:5,lb:15,n:4});renderPresetForm()});
+$('presetCancel').addEventListener('click',()=>{$('presetForm').hidden=true;editingPresets=null});
+$('presetForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const clamp=(v,lo,hi,d)=>{v=Math.round(parseFloat(v));return isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
+  state.presets=editingPresets.map(x=>({id:x.id,name:(String(x.name||'').trim()||'Preset').slice(0,20),f:clamp(x.f,1,240,25),b:clamp(x.b,1,120,5),lb:clamp(x.lb,1,120,15),n:clamp(x.n,1,12,4)}));
+  if(!state.presets.some(p=>p.id===state.presetId))state.presetId=state.presets[0].id;
+  $('presetForm').hidden=true;editingPresets=null;state.updated=Date.now();cache();renderFocus();
+});
+setInterval(()=>{checkFocus();if(state.focus&&(state.focus.phase==='focus'||state.focus.phase==='break')&&!$('viewFocus').hidden)renderFocus()},500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkFocus();if(state.focus&&(state.focus.phase==='focus'||state.focus.phase==='break'))holdScreen(true)}});
 $('tabToday').addEventListener('click',()=>showView('today'));
 $('tabTrophies').addEventListener('click',()=>showView('trophies'));
 $('exportBtn').addEventListener('click',exportBackup);
@@ -928,7 +1276,10 @@ $('importYes').addEventListener('click',()=>{
   pendingImport=null;$('importConfirm').hidden=true;viewDate=today;render();toast('Backup restored');
 });
 
+checkFocus();
 render();
+if(state.focus&&(state.focus.phase==='focus'||state.focus.phase==='break')){showView('focus')}
+renderFocus();
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{})}
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 })();
