@@ -70,7 +70,7 @@ button{cursor:pointer}
 .bar i{position:absolute;inset:0 auto 0 0;width:0;transition:width .5s steps(12)}
 .bar.xp i{background:var(--xp)} .bar.hp i{background:var(--hp)}
 .bar-val{min-width:76px;text-align:right;font-family:var(--f-num);font-weight:400;font-size:19px;font-variant-numeric:tabular-nums}
-.hud-note{margin:-20px 0 0;color:var(--muted);font-size:13px}
+.hud-note{margin:-14px 0 0;color:var(--muted);font-size:13px}
 .bar.hp s{position:absolute;inset:0 0 0 auto;width:0;background:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 5px);opacity:.45;text-decoration:none}
 .rank-row{display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center;font-family:var(--f-display);font-size:16px;padding-left:0}
 .rank-lbl{letter-spacing:.04em}
@@ -282,6 +282,42 @@ h3{font-size:16px}
 .pf .field input{width:100%}
 .pf .field label{font-size:10.5px}
 
+
+/* Status panel (Pip-Boy style frame) */
+.pb{border:2px solid var(--accent);color:var(--accent);padding:10px 12px 12px;font-family:var(--f-display);--a20:color-mix(in srgb,var(--accent) 20%,transparent);--a50:color-mix(in srgb,var(--accent) 55%,transparent)}
+.pb-tabs{display:flex;margin:-10px -12px 10px;border-bottom:2px solid var(--accent)}
+.pb-tabs button{flex:1;border:none;background:none;color:var(--accent);font-family:var(--f-display);font-size:19px;padding:5px 0 3px;letter-spacing:.04em}
+.pb-tabs button[aria-selected="true"]{background:var(--accent);color:var(--bg)}
+.pb-head{font-size:30px;line-height:1}
+.pb-head.cold{color:var(--muted)}
+.pb-sub{font-size:16px;color:var(--a50);margin-top:2px}
+.pb-grid{display:grid;grid-template-columns:28px 1fr auto;gap:7px 10px;align-items:center;margin-top:10px;font-size:18px}
+.pb-grid .num{min-width:58px;text-align:right;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;height:12px}
+.seg i{background:var(--a20)}
+.seg i.on{background:var(--accent)}
+.seg i.hp{background:var(--hp)}
+.seg i.xp{background:var(--xp)}
+.seg i.hollow{background:repeating-linear-gradient(135deg,var(--a50) 0 2px,transparent 2px 4px)}
+.pb-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin-top:10px;padding-top:6px;border-top:1px solid var(--a50);font-size:16px;letter-spacing:.03em}
+.pb-foot .bad{color:var(--hp)} .pb-foot .fire{color:var(--fire)}
+.ladder{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:18px}
+.ladder li{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:2px 6px}
+.ladder li.done{color:var(--a50)}
+.ladder li.cur{background:var(--accent);color:var(--bg)}
+.ladder li.hid{color:var(--a20);letter-spacing:.2em}
+.ladder li.cold{color:var(--muted)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:64px;margin-top:12px}
+.week div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%;font-size:13px;color:var(--a50)}
+.week b{width:100%;background:var(--accent);display:block;min-height:1px}
+.week b.z{background:var(--a20)}
+.pblog{list-style:none;margin:0;padding:0;font-size:17px;display:flex;flex-direction:column;gap:3px}
+.pblog li{display:grid;grid-template-columns:56px 1fr;gap:8px}
+.pblog time{color:var(--a50)}
+.pblog .bad{color:var(--hp)} .pblog .gold{color:var(--xp)} .pblog .good{color:var(--ink)} .pblog .fire{color:var(--fire)}
+.pblog .none{grid-column:1/-1;color:var(--a50)}
+.pb-link{border:none;background:none;padding:0;color:var(--accent);font-family:var(--f-display);font-size:16px;letter-spacing:.03em}
+
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--surface);border-top:2px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -309,20 +345,33 @@ h3{font-size:16px}
 </head>
 <body>
 <main class="app" id="app">
-  <header class="hud" aria-label="Character status">
-    <div class="lv"><small>LV</small><b id="lvNum" class="num">1</b></div>
-    <div class="bars">
-      <div class="bar-row"><span>XP</span><div class="bar xp" role="progressbar" aria-label="Experience" id="xpBar"><i id="xpFill"></i></div><span class="bar-val" id="xpText">0/100</span></div>
-      <div class="bar-row"><span>HP</span><div class="bar hp" role="progressbar" aria-label="Health" id="hpBar"><i id="hpFill"></i><s id="hpHollow"></s></div><span class="bar-val" id="hpText">50/50</span></div>
-      <div class="rank-row" id="rankRow">
-        <span class="rank-lbl">RANK</span>
-        <span class="pips" id="rankPips" aria-hidden="true"></span>
-        <span class="rank-val" id="rankVal"></span>
-      </div>
+  <header class="pb" aria-label="Character status">
+    <div class="pb-tabs" role="tablist">
+      <button type="button" role="tab" id="pbTabStat" data-t="stat">STAT</button>
+      <button type="button" role="tab" id="pbTabRank" data-t="rank">RANK</button>
+      <button type="button" role="tab" id="pbTabLog" data-t="log">LOG</button>
     </div>
-    <div class="hud-status" id="hudStatus"></div>
+    <div class="pb-panel" id="pbStat" role="tabpanel" aria-labelledby="pbTabStat">
+      <div class="pb-head" id="rankTitle"></div>
+      <div class="pb-grid">
+        <span>HP</span><div class="seg" id="segHp" role="progressbar" aria-label="Health"></div><span class="num" id="hpText"></span>
+        <span>XP</span><div class="seg" id="segXp" role="progressbar" aria-label="Experience"></div><span class="num" id="xpText"></span>
+        <span>RK</span><div class="seg" id="segRk" role="progressbar" aria-label="Focus hours a day"></div><span class="num" id="rankVal"></span>
+      </div>
+      <div class="pb-foot" id="hudStatus"></div>
+    </div>
+    <div class="pb-panel" id="pbRank" role="tabpanel" aria-labelledby="pbTabRank" hidden>
+      <div class="pb-head" id="rkName"></div>
+      <div class="pb-sub" id="rkAvg"></div>
+      <ol class="ladder" id="rkLadder"></ol>
+      <div class="week" id="rkWeek" role="img"></div>
+      <div class="pb-foot" id="rkNext"></div>
+    </div>
+    <div class="pb-panel" id="pbLog" role="tabpanel" aria-labelledby="pbTabLog" hidden>
+      <ol class="pblog" id="pbLogList"></ol>
+      <div class="pb-foot"><button type="button" class="pb-link" id="pbLogMore">FULL LOG IN HISTORY ›</button></div>
+    </div>
   </header>
-  <p class="rank-title" id="rankTitle"></p>
   <p class="hud-note" id="hudNote"></p>
   <ul class="curses" id="curseList" hidden></ul>
 
@@ -404,7 +453,7 @@ h3{font-size:16px}
       <li>Each failure also lays a random curse for 3 days: Withering (−25% habit XP), Brittle (×1.5 damage), Marked (one habit deals double damage), Sapped (no HP regen) or Dulled (no focus XP). Curses stack.</li>
       <li>Seven clean sweeps in a row also earn a bonfire (bank up to 2). Resting at one skips damage for the day, holds your streaks and refills HP.</li>
       <li>Focus sessions earn half an XP per minute. Abandoning one costs 5 HP.</li>
-      <li>Rank comes from your average focus hours a day over the last 7 full days: Smolder 1h, Creeping Fire 2h, Brush Fire 4h, Wildfire 6h, Crown Fire 8h, Firestorm 10h. Under 1h you are Ash. It updates at midnight and drops as fast as it rises.</li>
+      <li>Rank comes from your average focus hours a day over the last 7 full days: the six ranks start at 1, 2, 4, 6, 8 and 10 hours a day. Under 1 hour you are Ash. Each rank’s name stays hidden until you first reach it. The stages follow British Columbia’s 1–6 wildfire rank scale. It updates at midnight and drops as fast as it rises.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
     </ul>
   </details>
@@ -685,7 +734,7 @@ function activeCurses(){return R?R.curses.filter(c=>c.start<=today&&today<=c.end
 function cursedHabit(id){return activeCurses().some(c=>c.id==='marked'&&c.habit===id)}
 function bestStreak(r){let b=0;for(const k in r.best)b=Math.max(b,r.best[k]);return b}
 const RANK_TH=[1,2,4,6,8,10]; // avg focus hours/day needed for each rank
-const RANK_NAMES=['Ash','Smolder','Creeping Fire','Brush Fire','Wildfire','Crown Fire','Firestorm'];
+const RANK_NAMES=['Ash','Ground Fire','Creeping Fire','Running Fire','Torching Fire','Crown Fire','Inferno'];
 const RANK_MAX=RANK_TH.length;
 function focusByDay(){const FB={};for(const x of state.sessions){const o=FB[x.d]||(FB[x.d]={done:0,min:0,quit:0});if(x.ok){o.done++;o.min+=x.m}else o.quit++}return FB}
 // Rank on day d = average focus hours/day over the 7 full days before d, floored, capped at 10
@@ -720,12 +769,12 @@ const ACH=[
   {id:'triple',g:'Volume',name:'Triple threat',desc:'Finish 3 habits in one day',f:r=>[r.maxDone,3]},
   {id:'roster',g:'Volume',name:'Full roster',desc:'Track 5 habits at the same time',f:r=>[r.maxActive,5]},
   {id:'over',g:'Volume',name:'Overachiever',desc:'Log double the target on an amount habit',f:r=>[r.over,1]},
-  {id:'rk1',g:'Ranks',name:'Smolder',desc:'Average 1+ focus hour a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,1]},
+  {id:'rk1',g:'Ranks',name:'Ground Fire',desc:'Average 1+ focus hour a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,1]},
   {id:'rk2',g:'Ranks',name:'Creeping Fire',desc:'Average 2+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,2]},
-  {id:'rk3',g:'Ranks',name:'Brush Fire',desc:'Average 4+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,4]},
-  {id:'rk4',g:'Ranks',name:'Wildfire',desc:'Average 6+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,6]},
+  {id:'rk3',g:'Ranks',name:'Running Fire',desc:'Average 4+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,4]},
+  {id:'rk4',g:'Ranks',name:'Torching Fire',desc:'Average 6+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,6]},
   {id:'rk5',g:'Ranks',name:'Crown Fire',desc:'Average 8+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,8]},
-  {id:'rk6',g:'Ranks',name:'Firestorm',desc:'Average 10+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,10]},
+  {id:'rk6',g:'Ranks',name:'Inferno',desc:'Average 10+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,10]},
 
   {id:'hard30',g:'Grit',name:'Heavy lifter',desc:'Finish hard habits 30 times',f:r=>[r.hardDone,30]},
   {id:'iron',g:'Grit',name:'Ironclad',desc:'30 days in a row without taking damage',f:r=>[r.bestNoDmg,30]},
@@ -822,31 +871,68 @@ function renderCurses(ac){
   }
 }
 function rankNow(){const FB=focusByDay(),m=weekMinBefore(FB,today);return{min:m,avg:m/7/60,rank:rankFrom(m)}}
-function renderRank(){
-  const k=rankNow(),pips=$('rankPips');pips.textContent='';
-  for(let i=1;i<=RANK_MAX;i++){const p=document.createElement('i');if(i<=k.rank)p.className='on';pips.appendChild(p)}
-  $('rankVal').textContent=k.avg.toFixed(1)+' h/day';
-  $('rankTitle').textContent='Level '+levelInfo(R.xp).L+' '+rankName(k.rank);$('rankTitle').classList.toggle('cold',!k.rank);
-  $('rankRow').setAttribute('aria-label',rankName(k.rank)+', rank '+k.rank+' of '+RANK_MAX+', '+k.avg.toFixed(1)+' focus hours a day over the last 7 days');
+let pbTab=(()=>{try{return localStorage.getItem('streakwork:pbTab')||'stat'}catch(e){return 'stat'}})();
+function setPbTab(t){
+  pbTab=t;try{localStorage.setItem('streakwork:pbTab',t)}catch(e){}
+  for(const [k,id,tab] of [['stat','pbStat','pbTabStat'],['rank','pbRank','pbTabRank'],['log','pbLog','pbTabLog']]){$(id).hidden=k!==t;$(tab).setAttribute('aria-selected',k===t?'true':'false')}
+}
+function segs(el,n,parts){ // parts: [[count,cls],...] filled from the left
+  el.textContent='';let i=0;
+  for(const [c,cls] of parts){for(let k=0;k<c&&i<n;k++,i++){const x=document.createElement('i');if(cls)x.className=cls;el.appendChild(x)}}
+  while(i<n){el.appendChild(document.createElement('i'));i++}
 }
 function renderHud(){
-  renderRank();
-  const li=levelInfo(R.xp);
-  $('lvNum').textContent=li.L;
-  $('xpFill').style.width=(li.into/li.span*100)+'%';
-  $('xpText').textContent=li.into+'/'+li.span;
-  $('xpBar').setAttribute('aria-valuenow',li.into);$('xpBar').setAttribute('aria-valuemax',li.span);
-  $('hpFill').style.width=(R.hp/HPMAX*100)+'%';
-  $('hpHollow').style.width=((HPMAX-R.maxHp)/HPMAX*100)+'%';
-  $('hpText').textContent=R.hp+'/'+R.maxHp;
-  $('hpBar').setAttribute('aria-valuenow',R.hp);$('hpBar').setAttribute('aria-valuemax',R.maxHp);
+  const li=levelInfo(R.xp), k=rankNow(), N=20;
+  // STAT
+  const t=$('rankTitle');t.textContent='Level '+li.L+' '+rankName(k.rank);t.classList.toggle('cold',!k.rank);
+  const hpOn=Math.round(R.hp/HPMAX*N), hol=Math.round((HPMAX-R.maxHp)/HPMAX*N);
+  segs($('segHp'),N,[[hpOn,'hp'],[N-hpOn-hol,''],[hol,'hollow']]);
+  $('segHp').setAttribute('aria-valuenow',R.hp);$('segHp').setAttribute('aria-valuemax',R.maxHp);$('hpText').textContent=R.hp+'/'+R.maxHp;
+  segs($('segXp'),N,[[Math.floor(li.into/li.span*N),'xp']]);
+  $('segXp').setAttribute('aria-valuenow',li.into);$('segXp').setAttribute('aria-valuemax',li.span);$('xpText').textContent=li.into+'/'+li.span;
+  segs($('segRk'),N,[[Math.min(N,Math.floor(k.avg/RANK_TH[RANK_MAX-1]*N)),'on']]);
+  $('segRk').setAttribute('aria-valuenow',k.avg.toFixed(1));$('rankVal').textContent=k.avg.toFixed(1)+'h';
   const st=$('hudStatus');st.textContent='';
-  const chip=(label,val,cls)=>{const sp=document.createElement('span');if(cls)sp.className=cls;sp.textContent=label+' ';const b=document.createElement('b');b.textContent=val;sp.appendChild(b);st.appendChild(sp)};
-  chip('Failures',R.ko,R.ko?'bad':'');
-  chip('Bonfires',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
-  if(R.hollow)chip('Hollow',R.hollow,'bad');
-  const ac=activeCurses();if(ac.length)chip('Cursed',ac.length,'bad');
+  const chip=(label,val,cls)=>{const sp=document.createElement('span');if(cls)sp.className=cls;sp.textContent=label+' '+val;st.appendChild(sp)};
+  chip('FAILURES',R.ko,R.ko?'bad':'');
+  chip('BONFIRES',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
+  if(R.hollow)chip('HOLLOW',R.hollow,'bad');
+  const ac=activeCurses();if(ac.length)chip('CURSED',ac.length,'bad');
   renderCurses(ac);
+  // RANK
+  $('rkName').textContent=rankName(k.rank);$('rkName').classList.toggle('cold',!k.rank);
+  $('rkAvg').textContent=k.avg.toFixed(1)+' h/day avg over the last 7 days';
+  const lad=$('rkLadder');lad.textContent='';
+  for(let r=RANK_MAX;r>=0;r--){
+    const liEl=document.createElement('li');const seen=r<=R.maxRank;
+    const a1=document.createElement('span');a1.textContent=r||'';
+    const a2=document.createElement('span');const a3=document.createElement('span');
+    if(seen){a2.textContent=RANK_NAMES[r];a3.textContent=r?RANK_TH[r-1]+'h':'<1h'}else{a2.textContent='???';a3.textContent='';liEl.className='hid'}
+    if(r===k.rank)liEl.className='cur';else if(seen&&r<k.rank)liEl.className='done';else if(seen&&r===0)liEl.className='cold';
+    liEl.append(a1,a2,a3);lad.appendChild(liEl);
+  }
+  const FB=focusByDay(),wk=$('rkWeek');wk.textContent='';let lab=[];
+  const maxH=Math.max(RANK_TH[Math.min(k.rank,RANK_MAX-1)],1);
+  for(let i=7;i>=1;i--){
+    const d=addDays(today,-i),h=((FB[d]||{}).min||0)/60;
+    const col=document.createElement('div');const b=document.createElement('b');
+    b.style.height=Math.max(1,Math.min(48,h/Math.max(maxH*1.5,1)*48))+'px';if(!h)b.className='z';
+    col.appendChild(b);col.appendChild(document.createTextNode(parse(d).toLocaleDateString(undefined,{weekday:'narrow'})));wk.appendChild(col);
+    lab.push(fmt(d,{weekday:'short'})+' '+h.toFixed(1)+'h');
+  }
+  wk.setAttribute('aria-label','Focus hours, last 7 days: '+lab.join(', '));
+  {const tm=weekMinBefore(FB,addDays(today,1)),tr=rankFrom(tm),need=tr<RANK_MAX?Math.ceil(RANK_TH[tr]*7*60-tm):0;
+   const nx=$('rkNext');nx.textContent='';
+   const l=document.createElement('span'),r=document.createElement('span');
+   if(tr<k.rank){l.className='bad';l.textContent='TOMORROW: '+rankName(tr).toUpperCase()}
+   else l.textContent=tr<RANK_MAX?'NEXT: '+(tr+1<=R.maxRank?rankName(tr+1).toUpperCase():'???'):'TOP RANK';
+   r.textContent=need>0?'+'+need+' MIN TODAY':'';
+   nx.append(l,r);}
+  // LOG
+  const ol=$('pbLogList');ol.textContent='';
+  const evs=R.events.slice(-6).reverse();
+  if(!evs.length){const x=document.createElement('li');const sp=document.createElement('span');sp.className='none';sp.textContent='NOTHING YET';x.appendChild(sp);ol.appendChild(x)}
+  for(const e of evs){const x=document.createElement('li');const tm=document.createElement('time');tm.textContent=fmt(e.d).toUpperCase();const sp=document.createElement('span');sp.className=e.t;sp.textContent=e.x;x.append(tm,sp);ol.appendChild(x)}
   const n=$('hudNote');n.classList.remove('warn');
   const yd=addDays(today,-1), resting=!!R.restDays[today];
   if(R.stain&&R.stain.until<=today){n.textContent='Bloodstain: '+R.stain.amt+' XP lies where you fell. Finish every habit today to recover it.';n.classList.add('warn')}
@@ -1085,7 +1171,7 @@ function renderAch(){
   $('achFill').style.width=(got/ACH.length*100)+'%';
   $('achBar').setAttribute('aria-valuenow',got);$('achBar').setAttribute('aria-valuemax',ACH.length);
   const next=rows.filter(x=>!x.when).sort((x,y)=>(y.cur/y.goal)-(x.cur/x.goal))[0];
-  $('achNext').textContent=next?'Closest: '+next.a.name+' · '+next.cur.toLocaleString()+'/'+next.goal.toLocaleString():'Every achievement unlocked.';
+  $('achNext').textContent=next?'Closest: '+((next.a.g==='Ranks')?'a hidden rank':next.a.name)+' · '+next.cur.toLocaleString()+'/'+next.goal.toLocaleString():'Every achievement unlocked.';
   const wrap=$('achGroups');wrap.textContent='';
   for(const g of GROUPS){
     const items=rows.filter(x=>x.a.g===g);
@@ -1097,7 +1183,7 @@ function renderAch(){
       const li=document.createElement('li');if(r.when)li.className='got';
       const m=document.createElement('div');m.className='medal';m.textContent=r.when?'★':'';m.setAttribute('aria-hidden','true');
       const body=document.createElement('div');
-      const n=document.createElement('div');n.className='a-name';n.textContent=r.a.name;
+      const n=document.createElement('div');n.className='a-name';n.textContent=(r.a.g==='Ranks'&&!r.when)?'???':r.a.name;
       const ds=document.createElement('div');ds.className='a-desc';ds.textContent=r.a.desc;
       body.append(n,ds);
       if(r.when){const w=document.createElement('div');w.className='a-when';w.textContent='Unlocked '+fmt(r.when,r.when.slice(0,4)===today.slice(0,4)?{month:'short',day:'numeric'}:{month:'short',day:'numeric',year:'numeric'});body.appendChild(w)}
@@ -1234,6 +1320,9 @@ function showView(v){
   window.scrollTo(0,0);
 }
 $('tabHistory').addEventListener('click',()=>showView('history'));
+document.querySelectorAll('.pb-tabs button').forEach(b=>b.addEventListener('click',()=>setPbTab(b.dataset.t)));
+$('pbLogMore').addEventListener('click',()=>{showView('history');setTimeout(()=>{const el=$('logH');if(el)el.scrollIntoView({block:'start'})},30)});
+setPbTab(pbTab);
 $('tabFocus').addEventListener('click',()=>{showView('focus');renderFocus()});
 
 /* ---------- focus timer ---------- */
