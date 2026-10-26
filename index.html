@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#100D0B" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Streakwork">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -39,17 +39,21 @@
   --accent:#FF7A2E; --accent-ink:#1A0D06; --xp:#F2B33A; --hp:#E8564A; --fire:#FF8F3F; --heat0:#251E19; color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
-html,body{background:var(--bg)}
+:root{color-scheme:light;-webkit-text-size-adjust:100%}
+html,body{background:var(--bg);height:100%;overflow:hidden}
 html{font-synthesis:none;touch-action:manipulation}
 /* 16px minimum stops iOS auto-zooming when a field is focused */
 input,select,textarea{font-size:16px!important}
 body{margin:0;-webkit-tap-highlight-color:transparent}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:40}
+/* status-bar strip: always dark so the white status bar text stays readable */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#100D0B;z-index:40}
+/* the page scrolls inside this box so the scroll indicator can be hidden */
+#scroller{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+#scroller::-webkit-scrollbar{display:none;width:0;height:0}
 [hidden]{display:none!important}
-body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));}
-.app{max-width:560px;margin:0 auto;padding-block:16px 112px;display:flex;flex-direction:column;gap:28px}
+body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.app{max-width:560px;margin:0 auto;padding-block:16px calc(112px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:28px}
 .view{display:flex;flex-direction:column;gap:28px}
 h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.03em;text-wrap:balance}
 h2{font-size:26px} h3{font-size:22px}
@@ -344,6 +348,7 @@ h3{font-size:16px}
 </style>
 </head>
 <body>
+<div id="scroller">
 <main class="app" id="app">
   <header class="pb" aria-label="Character status">
     <div class="pb-tabs" role="tablist">
@@ -568,6 +573,7 @@ h3{font-size:16px}
     <div id="achGroups" class="ach-groups"></div>
   </div>
 </main>
+</div>
 <nav class="tabs" aria-label="Pages">
   <button type="button" class="tab" id="tabToday" aria-current="page">
     <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h2v2H3zM7 4h10v2H7zM3 9h2v2H3zM7 9h10v2H7zM3 14h2v2H3zM7 14h10v2H7z" fill="currentColor"/></svg>
@@ -1317,7 +1323,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&todayStr(
 function showView(v){
   const map={today:['viewToday','tabToday'],focus:['viewFocus','tabFocus'],history:['viewHistory','tabHistory'],trophies:['viewTrophies','tabTrophies']};
   for(const k in map){const on=k===v;$(map[k][0]).hidden=!on;if(on)$(map[k][1]).setAttribute('aria-current','page');else $(map[k][1]).removeAttribute('aria-current')}
-  window.scrollTo(0,0);
+  $('scroller').scrollTo(0,0);
 }
 $('tabHistory').addEventListener('click',()=>showView('history'));
 document.querySelectorAll('.pb-tabs button').forEach(b=>b.addEventListener('click',()=>setPbTab(b.dataset.t)));
@@ -1404,8 +1410,8 @@ function renderFocus(){
   // rank progress: what tomorrow's rank will be and how far to the next
   {const FB=focusByDay();const tm=weekMinBefore(FB,addDays(today,1));const tr=rankFrom(tm);const cur=rankFrom(weekMinBefore(FB,today));
    const need=tr<RANK_MAX?Math.ceil(RANK_TH[tr]*7*60-tm):0;
-   $('rankNext').textContent=(tr!==cur?'Tomorrow you drop to '+rankName(tr)+'. ':'')+(tr>cur?'':'')+(need>0?need+' more focus min today reaches '+rankName(tr+1)+' tomorrow.':'You\u2019re at the top rank.');
-   if(tr>cur)$('rankNext').textContent='Tomorrow you rise to '+rankName(tr)+'. '+(need>0?need+' more min today reaches '+rankName(tr+1)+'.':'');}
+   const seen=r=>r<=R.maxRank?rankName(r):'a hidden rank';
+   $('rankNext').textContent=(tr<cur?'Tomorrow you drop to '+rankName(tr)+'. ':tr>cur?'Tomorrow you rise to '+seen(tr)+'. ':'')+(need>0?need+' more focus min today reaches '+seen(tr+1)+' tomorrow.':'You\u2019re at the top rank.');}
   // totals
   const ws=addDays(today,-parse(today).getDay());
   let tMin=0,wMin=0,all=0,quit=0;
