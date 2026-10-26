@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Streakwork</title>
 <meta name="description" content="Personal habit tracker with XP, levels and streaks.">
-<meta name="theme-color" content="#E6E9E1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#131512" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EDE7E1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#100D0B" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -23,25 +23,27 @@
 @font-face{font-family:"Rubik";font-weight:600;font-display:swap;src:url(rubik-latin-600-normal.woff2) format("woff2")}
 /* Layout: single column handheld-console HUD — status bars on top, today's quest list, then history heatmap and trophy case. */
 :root{
-  --bg:#E6E9E1; --surface:#F6F7F3; --ink:#1D221B; --muted:#5C6457; --line:#C9CFC2; --track:#D6DBCF;
-  --accent:#5B3FD0; --accent-ink:#FFFFFF;
-  --xp:#B97F00; --hp:#CC3F35; --fire:#D9621A;
-  --heat0:#D3D9CC;
+  --bg:#EDE7E1; --surface:#F8F4F0; --ink:#1F1915; --muted:#6B5E54; --line:#D6CBC1; --track:#E0D6CC;
+  --accent:#C24E15; --accent-ink:#FFFFFF;
+  --xp:#A8740A; --hp:#B3302A; --fire:#D5621A;
+  --heat0:#DDD2C7;
   --f-display:"Jersey 10", ui-monospace, "SF Mono", Menlo, monospace;
   --f-num:"Jersey 10", ui-monospace, "SF Mono", Menlo, monospace;
   --f-body:"Rubik", -apple-system, system-ui, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#131512; --surface:#1C1F1A; --ink:#E8EBE3; --muted:#9AA293; --line:#30352D; --track:#2A2E27;
-  --accent:#9D8BFF; --accent-ink:#131512; --xp:#F0B42C; --hp:#F0675B; --fire:#FF8B3D; --heat0:#252923; color-scheme:dark}}
+  --bg:#100D0B; --surface:#1A1512; --ink:#EFE6DE; --muted:#A39385; --line:#352B24; --track:#2B231D;
+  --accent:#FF7A2E; --accent-ink:#1A0D06; --xp:#F2B33A; --hp:#E8564A; --fire:#FF8F3F; --heat0:#251E19; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#131512; --surface:#1C1F1A; --ink:#E8EBE3; --muted:#9AA293; --line:#30352D; --track:#2A2E27;
-  --accent:#9D8BFF; --accent-ink:#131512; --xp:#F0B42C; --hp:#F0675B; --fire:#FF8B3D; --heat0:#252923; color-scheme:dark}
+  --bg:#100D0B; --surface:#1A1512; --ink:#EFE6DE; --muted:#A39385; --line:#352B24; --track:#2B231D;
+  --accent:#FF7A2E; --accent-ink:#1A0D06; --xp:#F2B33A; --hp:#E8564A; --fire:#FF8F3F; --heat0:#251E19; color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
 html,body{background:var(--bg)}
-html{font-synthesis:none}
+html{font-synthesis:none;touch-action:manipulation}
+/* 16px minimum stops iOS auto-zooming when a field is focused */
+input,select,textarea{font-size:16px!important}
 body{margin:0;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:40}
 [hidden]{display:none!important}
@@ -74,6 +76,13 @@ button{cursor:pointer}
 .hud-status b{font-family:var(--f-num);font-weight:400;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
 .hud-status .bad b{color:var(--hp)} .hud-status .fire b{color:var(--fire)}
 .esc{color:var(--hp)}
+.h-plan{font-size:12.5px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.hint{margin:-4px 0 0;font-size:12px;color:var(--muted)}
+.curses{list-style:none;margin:-14px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.curses li{border:2px solid color-mix(in srgb, var(--hp) 55%, var(--line));background:color-mix(in srgb, var(--hp) 8%, var(--surface));padding:8px 10px;display:flex;flex-direction:column;gap:1px}
+.curses b{font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--hp);letter-spacing:.03em}
+.curses span{font-size:12.5px;color:var(--muted)}
+.death-body .curse{color:#E0675C}
 .bonfire{display:flex;justify-content:center;align-items:center;gap:10px;font-size:13px;color:var(--fire)}
 .confirm.fire{border-color:var(--fire)}
 .death{position:fixed;inset:0;z-index:50;background:rgb(8,7,7);display:grid;place-items:center;
@@ -299,6 +308,7 @@ h3{font-size:16px}
     </div>
   </header>
   <p class="hud-note" id="hudNote"></p>
+  <ul class="curses" id="curseList" hidden></ul>
 
   <div class="view" id="viewToday">
   <section class="day" aria-labelledby="dayLabel">
@@ -328,6 +338,11 @@ h3{font-size:16px}
     <form class="sheet" id="habitForm" hidden novalidate>
       <h3 id="formTitle">New habit</h3>
       <div class="field"><label for="fName">Name</label><input id="fName" maxlength="40" autocomplete="off" placeholder="Habit name"></div>
+      <div class="row2">
+        <div class="field"><label for="fWhen">When</label><input id="fWhen" maxlength="40" autocomplete="off" placeholder="After breakfast"></div>
+        <div class="field"><label for="fWhere">Where</label><input id="fWhere" maxlength="30" autocomplete="off" placeholder="At my desk"></div>
+      </div>
+      <p class="hint">Naming a specific time and place makes you much more likely to follow through. Optional.</p>
       <fieldset class="seg" id="kindSeg"><legend>Tracking</legend>
         <input type="radio" name="kind" id="kCheck" value="check" checked><label for="kCheck">Done / not done</label>
         <input type="radio" name="kind" id="kCount" value="count"><label for="kCount">Amount</label>
@@ -370,6 +385,7 @@ h3{font-size:16px}
       <li>HP regenerates 2 per day on its own. Each finished habit heals 1 more, and finishing every habit in a day heals 3 more.</li>
       <li>At 0 HP you fail: you drop to the start of the previous level. The XP you lost stays as a bloodstain. Finish every habit the next day to recover it, or it is gone for good.</li>
       <li>Each failure hollows you: max HP drops by 5, down to 25. Seven clean sweeps in a row restore it.</li>
+      <li>Each failure also lays a random curse for 3 days: Withering (−25% habit XP), Brittle (×1.5 damage), Marked (one habit deals double damage), Sapped (no HP regen) or Dulled (no focus XP). Curses stack.</li>
       <li>Seven clean sweeps in a row also earn a bonfire (bank up to 2). Resting at one skips damage for the day, holds your streaks and refills HP.</li>
       <li>Focus sessions earn half an XP per minute. Abandoning one costs 5 HP.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
@@ -515,7 +531,16 @@ h3{font-size:16px}
 <script>
 (function(){
 const KEY='streakwork:v1';
-const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5;
+const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5, CURSE_DAYS=3;
+const CURSES={
+  withering:{name:'Withering',desc:'Habits earn 25% less XP'},
+  brittle:{name:'Brittle',desc:'All damage \u00d71.5'},
+  marked:{name:'Marked',desc:'One habit deals double damage if missed'},
+  sapped:{name:'Sapped',desc:'No passive HP regeneration'},
+  dulled:{name:'Dulled',desc:'Focus sessions earn no XP'},
+};
+const CURSE_IDS=Object.keys(CURSES);
+function hashStr(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 const DNAME={1:'Easy',2:'Medium',3:'Hard'};
 const $=id=>document.getElementById(id);
 const CHECK_SVG='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="var(--accent-ink)" stroke-width="3" stroke-linecap="square"/></svg>';
@@ -563,7 +588,7 @@ function compute(){
   const H=state.habits, rest=state.rest||{};
   const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
     streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
-    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
+    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
   H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
@@ -575,6 +600,8 @@ function compute(){
     let resting=false;
     if(rest[d]&&r.bonfires>0){r.bonfires--;resting=true;r.restDays[d]=true;r.events.push({d,t:'fire',x:'Rested at a bonfire'})}
     const lvBefore=levelInfo(r.xp).L, topBefore=r.maxLevel;
+    const cur={};for(const c of r.curses)if(c.start<=d&&d<=c.end){cur[c.id]=true;if(c.id==='marked')(cur.marks||(cur.marks={}))[c.habit]=true}
+    if(Object.keys(cur).length)r.cursedDays++;
     const ended=d<today;
     const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0,done=0;
     r.maxActive=Math.max(r.maxActive,act.length);
@@ -585,14 +612,16 @@ function compute(){
         if(h.diff===3){r.hardDone++;r.hardBest=Math.max(r.hardBest,r.streak[h.id])}
         if(h.kind==='count'&&v>=2*h.target)r.over++;
       }
-      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])}}
+      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)}}
       gained+=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);
     }
+    if(cur.withering)gained*=.75;
     const fs=FB[d];
     if(fs){
-      gained+=fs.min*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
+      gained+=cur.dulled?0:fs.min*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
       if(fs.quit){dmg+=QUIT_DMG*fs.quit;r.events.push({d,t:'bad',x:'Abandoned '+(fs.quit===1?'a focus session':fs.quit+' focus sessions')+': \u2212'+QUIT_DMG*fs.quit+' HP'})}
     }
+    if(cur.brittle)dmg*=1.5;
     r.xp+=gained; r.earned+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
     r.maxDone=Math.max(r.maxDone,done); if(done)r.daysActive++;
     if(all){
@@ -619,8 +648,12 @@ function compute(){
       r.xp=nx;r.ko++;r.lastKO=d;r.lastKOFrom=li.L;r.lastKOTo=levelInfo(nx).L;
       r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=HPMAX-5*r.hollow;r.hp=r.maxHp;low=false;
       r.events.push({d,t:'bad',x:'Failed. Level '+r.lastKOFrom+' \u2192 '+r.lastKOTo+', max HP '+r.maxHp});
+      {const seed=hashStr(d+':'+r.ko), id=CURSE_IDS[seed%CURSE_IDS.length], c={id,start:addDays(d,1),end:addDays(d,CURSE_DAYS),from:d};
+       if(id==='marked'){const pool=act.slice().sort((a,b)=>a.id<b.id?-1:1);c.habit=pool[(seed>>>8)%pool.length].id;c.habitName=pool[(seed>>>8)%pool.length].name}
+       r.curses.push(c);r.lastCurse=c;
+       r.events.push({d,t:'bad',x:'Cursed: '+CURSES[id].name+(c.habit?' ('+c.habitName+')':'')+' for '+CURSE_DAYS+' days'})}
     }
-    else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+REGEN)}
+    else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+(cur.sapped?0:REGEN))}
     if(low&&r.hp>=r.maxHp){r.comeback=true;low=false}
     const lvNow=levelInfo(r.xp).L;
     if(lvNow>lvBefore)r.events.push({d,t:'gold',x:(lvNow>topBefore?'Reached level ':'Regained level ')+lvNow});
@@ -630,6 +663,8 @@ function compute(){
   r.xp=Math.round(r.xp); r.earned=Math.round(r.earned); r.hp=Math.max(0,Math.round(r.hp));
   return r;
 }
+function activeCurses(){return R?R.curses.filter(c=>c.start<=today&&today<=c.end):[]}
+function cursedHabit(id){return activeCurses().some(c=>c.id==='marked'&&c.habit===id)}
 function bestStreak(r){let b=0;for(const k in r.best)b=Math.max(b,r.best[k]);return b}
 const GROUPS=['Streaks','Consistency','Levels','Volume','Grit'];
 const ACH=[
@@ -665,6 +700,7 @@ const ACH=[
   {id:'brink',g:'Grit',name:'Back from the brink',desc:'Fall to 10 HP or less, then heal to full',f:r=>[r.comeback?1:0,1]},
   {id:'stain',g:'Grit',name:'Retrieved',desc:'Recover a bloodstain',f:r=>[r.recovered,1]},
   {id:'kindle',g:'Grit',name:'Kindled',desc:'Cure hollowing with a perfect week',f:r=>[r.kindled,1]},
+  {id:'hexed',g:'Grit',name:'Hexed',desc:'Spend 10 days under a curse',f:r=>[r.cursedDays,10]},
 ];
 
 /* ---------- persistence (on-device only) ---------- */
@@ -731,7 +767,7 @@ function setVal(h,d,v){
 }
 function addHabit(o){
   state.habits.push({id:'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:o.name,kind:o.kind,
-    target:o.kind==='count'?o.target:1,unit:o.kind==='count'?(o.unit||''):'',diff:o.diff,created:today,archived:null});
+    target:o.kind==='count'?o.target:1,unit:o.kind==='count'?(o.unit||''):'',diff:o.diff,when:o.when||'',where:o.where||'',created:today,archived:null});
   commit();
 }
 
@@ -742,6 +778,16 @@ function render(){
   if(typeof state.seenKO!=='number'){state.seenKO=R.ko;cache()}
   if(R.ko>state.seenKO&&$('death').hidden)showDeath();
   renderHud();renderDay();renderHistory();renderStats();renderAch();renderSync();
+}
+function renderCurses(ac){
+  const ul=$('curseList');ul.textContent='';ul.hidden=!ac.length;
+  for(const c of ac){
+    const li=document.createElement('li');
+    const b=document.createElement('b');b.textContent=CURSES[c.id].name;
+    const left=Math.round((parse(c.end)-parse(today))/864e5)+1;
+    const sp=document.createElement('span');sp.textContent=(c.id==='marked'&&c.habitName?c.habitName+' deals double damage if missed':CURSES[c.id].desc)+' \u00b7 '+left+(left===1?' day':' days')+' left';
+    li.append(b,sp);ul.appendChild(li);
+  }
 }
 function renderHud(){
   const li=levelInfo(R.xp);
@@ -758,6 +804,8 @@ function renderHud(){
   chip('Failures',R.ko,R.ko?'bad':'');
   chip('Bonfires',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
   if(R.hollow)chip('Hollow',R.hollow,'bad');
+  const ac=activeCurses();if(ac.length)chip('Cursed',ac.length,'bad');
+  renderCurses(ac);
   const n=$('hudNote');n.classList.remove('warn');
   const yd=addDays(today,-1), resting=!!R.restDays[today];
   if(R.stain&&R.stain.until<=today){n.textContent='Bloodstain: '+R.stain.amt+' XP lies where you fell. Finish every habit today to recover it.';n.classList.add('warn')}
@@ -811,7 +859,10 @@ function renderDay(){
     meta.append(st,info);
     const m2=R.miss[h.id]||0;
     if(m2&&d===today&&!R.restDays[today]){const w=document.createElement('span');w.className='esc';w.textContent='Missed '+m2+(m2===1?' day':' days')+' \u00b7 next miss \u00d7'+escFor(m2+1).toFixed(1)+' damage';meta.appendChild(w)}
-    main.append(nm,meta);
+    if(cursedHabit(h.id)&&d===today){const w=document.createElement('span');w.className='esc';w.textContent='Marked \u00b7 \u00d72 damage if missed';meta.appendChild(w)}
+    main.append(nm);
+    if(h.when||h.where){const pl=document.createElement('div');pl.className='h-plan';pl.textContent=[h.when,h.where].filter(Boolean).join(' \u00b7 ');main.appendChild(pl)}
+    main.append(meta);
     li.append(btn,main);
     if(editMode){
       const eb=document.createElement('button');eb.type='button';eb.className='edit-btn';eb.textContent='Edit';
@@ -1038,6 +1089,7 @@ function showDeath(){
   else if(R.stain)line('Your bloodstain holds '+R.stain.amt+' XP. Finish every habit tomorrow to recover it.');
   if(R.stainLost&&R.lastKO&&R.stainLost.d>=R.lastKO)line('Your bloodstain was not recovered. '+R.stainLost.amt+' XP is gone for good.');
   line('Max HP is now '+R.maxHp+'. Seven clean sweeps in a row restore it.');
+  if(R.lastCurse){const c=R.lastCurse;line('Cursed: '+CURSES[c.id].name+'. '+(c.id==='marked'&&c.habitName?c.habitName+' deals double damage if missed':CURSES[c.id].desc)+' for '+CURSE_DAYS+' days.','curse')}
   line('Failures: '+R.ko,'dim');
   $('death').hidden=false;document.body.style.overflow='hidden';
   setTimeout(()=>$('deathBtn').focus(),50);
@@ -1060,6 +1112,7 @@ function openForm(h){
   $('formTitle').textContent=h?'Edit habit':'New habit';
   $('saveBtn').textContent=h?'Save':'Add habit';
   $('fName').value=h?h.name:'';
+  $('fWhen').value=h?h.when||'':'';$('fWhere').value=h?h.where||'':'';
   $(h&&h.kind==='count'?'kCount':'kCheck').checked=true;
   $('kCheck').disabled=$('kCount').disabled=!!h;
   $('fTarget').value=h&&h.kind==='count'?h.target:30;$('fUnit').value=h?h.unit||'':'';
@@ -1077,6 +1130,7 @@ $('editToggle').addEventListener('click',()=>{editMode=!editMode;render()});
 $('habitForm').addEventListener('submit',e=>{
   e.preventDefault();
   const name=$('fName').value.trim();
+  const when=$('fWhen').value.trim(),where=$('fWhere').value.trim();
   if(!name){$('fName').focus();$('fName').placeholder='Give the habit a name';return}
   const kind=$('kCount').checked?'count':'check';
   const target=Math.max(1,Math.min(9999,Math.round(parseFloat($('fTarget').value)||1)));
@@ -1084,10 +1138,10 @@ $('habitForm').addEventListener('submit',e=>{
   const diff=Number(document.querySelector('input[name="diff"]:checked').value);
   if(editingId){
     const h=state.habits.find(x=>x.id===editingId);
-    if(h){h.name=name;h.diff=diff;if(h.kind==='count'){h.target=target;h.unit=unit}}
+    if(h){h.name=name;h.diff=diff;h.when=when;h.where=where;if(h.kind==='count'){h.target=target;h.unit=unit}}
     $('habitForm').hidden=true;editingId=null;commit();
   }else{
-    $('habitForm').hidden=true;addHabit({name,kind,target,unit,diff});
+    $('habitForm').hidden=true;addHabit({name,kind,target,unit,diff,when,where});
   }
 });
 $('archiveBtn').addEventListener('click',()=>{
@@ -1278,6 +1332,11 @@ $('importYes').addEventListener('click',()=>{
   state=clone(pendingImport);normalize();state.updated=Date.now();cache();
   pendingImport=null;$('importConfirm').hidden=true;viewDate=today;render();toast('Backup restored');
 });
+
+// iOS Safari ignores user-scalable=no, so block pinch and double-tap zoom directly
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+let lastTouch=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTouch<300&&!e.target.closest('input,select,textarea'))e.preventDefault();lastTouch=n},{passive:false});
 
 checkFocus();
 render();
