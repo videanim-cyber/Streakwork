@@ -45,7 +45,8 @@ body{margin:0;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 body{color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));}
-.app{max-width:560px;margin:0 auto;padding-block:16px 96px;display:flex;flex-direction:column;gap:28px}
+.app{max-width:560px;margin:0 auto;padding-block:16px 112px;display:flex;flex-direction:column;gap:28px}
+.view{display:flex;flex-direction:column;gap:28px}
 h2,h3{font-family:var(--f-display);font-weight:700;margin:0;letter-spacing:.02em;text-wrap:balance}
 h2{font-size:20px} h3{font-size:18px}
 button,input,select{font:inherit;color:inherit}
@@ -66,6 +67,26 @@ button{cursor:pointer}
 .bar.xp i{background:var(--xp)} .bar.hp i{background:var(--hp)}
 .bar-val{min-width:76px;text-align:right;font-variant-numeric:tabular-nums}
 .hud-note{margin:-16px 0 0;color:var(--muted);font-size:13px}
+.bar.hp s{position:absolute;inset:0 0 0 auto;width:0;background:repeating-linear-gradient(135deg,var(--ink) 0 2px,transparent 2px 5px);opacity:.45;text-decoration:none}
+.hud-status{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);padding-left:34px}
+.hud-status b{font-family:var(--f-display);font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.hud-status .bad b{color:var(--hp)} .hud-status .fire b{color:var(--fire)}
+.esc{color:var(--hp)}
+.bonfire{display:flex;justify-content:center;align-items:center;gap:10px;font-size:13px;color:var(--fire)}
+.confirm.fire{border-color:var(--fire)}
+.death{position:fixed;inset:0;z-index:50;background:rgb(8,7,7);display:grid;place-items:center;
+  padding:max(24px, env(safe-area-inset-top,0px)) max(24px, env(safe-area-inset-right,0px)) max(24px, env(safe-area-inset-bottom,0px)) max(24px, env(safe-area-inset-left,0px));
+  animation:deathIn 1.6s ease both}
+.death-inner{max-width:420px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.death h2{font-family:var(--f-display);font-size:clamp(52px,17vw,88px);letter-spacing:.14em;color:#B5281E;margin:0;text-shadow:0 0 24px rgba(181,40,30,.45);animation:deathTitle 2.4s ease both}
+.death-body{display:flex;flex-direction:column;gap:8px;color:#CFC9C0;font-size:14px}
+.death-body p{margin:0}
+.death-body .big{font-family:var(--f-display);font-size:22px;color:#EDE7DE}
+.death-body .dim{color:#8A847B;font-size:12.5px}
+.death-btn{margin-top:10px;border:2px solid #6E6860;background:transparent;color:#EDE7DE;font-family:var(--f-display);font-size:17px;padding:10px 26px;letter-spacing:.06em}
+.death-btn:focus-visible{outline:2px solid #EDE7DE}
+@keyframes deathIn{from{opacity:0}to{opacity:1}}
+@keyframes deathTitle{0%{opacity:0;transform:scale(1.08)}40%{opacity:0}100%{opacity:1;transform:scale(1)}}
 .hud-note.warn{color:var(--hp)}
 
 /* Day */
@@ -96,7 +117,11 @@ button{cursor:pointer}
 .stepper input{width:46px;height:34px;border:none;border-inline:2px solid var(--line);background:transparent;text-align:center;font-variant-numeric:tabular-nums;-moz-appearance:textfield}
 .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .edit-btn{border:2px solid var(--line);background:transparent;padding:6px 12px;font-size:13px}
-.list-actions{display:flex;gap:8px}
+.list-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:0 2px}
+.link{border:none;background:none;padding:6px 2px;font-size:13.5px;font-weight:500;color:var(--accent);min-height:32px}
+.link.quiet{color:var(--muted)}
+.link.danger{color:var(--hp)}
+.link:disabled{opacity:.4;cursor:default}
 .btn{border:2px solid var(--ink);background:var(--surface);padding:10px 14px;font-weight:500;box-shadow:3px 3px 0 var(--ink)}
 .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--ink)}
@@ -157,7 +182,16 @@ button{cursor:pointer}
 .stat span{font-size:11.5px;color:var(--muted)}
 @media (max-width:380px){.stats{grid-template-columns:repeat(2,1fr)}}
 
-/* Achievements */
+/* Achievements page */
+.trophy-head{display:flex;flex-direction:column;gap:8px}
+.trophy-head .sec-head{margin-bottom:0}
+.ach-count{font-family:var(--f-display);font-size:18px}
+.ach-bar{height:12px}
+.ach-bar i{background:var(--xp)}
+.ach-next{margin:0;font-size:13px;color:var(--muted)}
+.ach-groups{display:flex;flex-direction:column;gap:22px}
+.ach-group h3{font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+.ach-group h3 span{color:var(--muted);font-variant-numeric:tabular-nums}
 .ach{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ach li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:10px;border:2px solid var(--line);background:var(--surface)}
 .ach .medal{width:30px;height:30px;display:grid;place-items:center;font-family:var(--f-display);font-size:12px;border:2px solid var(--line);color:var(--muted);
@@ -166,9 +200,18 @@ button{cursor:pointer}
 .ach li.got .medal{background:var(--xp);border-color:var(--xp);color:var(--surface)}
 .ach .a-name{font-weight:500;font-size:14px;line-height:1.25}
 .ach .a-desc{font-size:12px;color:var(--muted)}
+.ach .a-when{font-size:11.5px;color:var(--xp);margin-top:4px;font-variant-numeric:tabular-nums}
 .ach .a-prog{height:4px;background:var(--track);margin-top:6px}
 .ach .a-prog i{display:block;height:100%;background:var(--muted)}
 @media (max-width:360px){.ach{grid-template-columns:1fr}}
+
+/* Tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--surface);border-top:2px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;border:none;background:none;color:var(--muted);font-size:11.5px;font-weight:500}
+.tab svg{width:22px;height:22px}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab b{font-weight:500;font-variant-numeric:tabular-nums}
 
 .rules{font-size:13px;color:var(--muted);margin:0}
 .rules summary{cursor:pointer;color:var(--ink);font-weight:500}
@@ -180,7 +223,7 @@ button{cursor:pointer}
 .sync{font-size:12px;color:var(--muted);text-align:center}
 .sync.err{color:var(--hp)}
 
-.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+.toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom, 0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
   background:var(--ink);color:var(--bg);font-family:var(--f-display);font-size:18px;padding:8px 16px;transition:opacity .2s,transform .2s;z-index:20;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.lvl{background:var(--xp);color:#1D1A10}
@@ -193,11 +236,13 @@ button{cursor:pointer}
     <div class="lv"><small>LV</small><b id="lvNum" class="num">1</b></div>
     <div class="bars">
       <div class="bar-row"><span>XP</span><div class="bar xp" role="progressbar" aria-label="Experience" id="xpBar"><i id="xpFill"></i></div><span class="bar-val" id="xpText">0/100</span></div>
-      <div class="bar-row"><span>HP</span><div class="bar hp" role="progressbar" aria-label="Health" id="hpBar"><i id="hpFill"></i></div><span class="bar-val" id="hpText">50/50</span></div>
+      <div class="bar-row"><span>HP</span><div class="bar hp" role="progressbar" aria-label="Health" id="hpBar"><i id="hpFill"></i><s id="hpHollow"></s></div><span class="bar-val" id="hpText">50/50</span></div>
+      <div class="hud-status" id="hudStatus"></div>
     </div>
   </header>
   <p class="hud-note" id="hudNote"></p>
 
+  <div class="view" id="viewToday">
   <section class="day" aria-labelledby="dayLabel">
     <div class="day-nav">
       <button type="button" id="prevDay" aria-label="Previous day">‹</button>
@@ -205,14 +250,22 @@ button{cursor:pointer}
       <button type="button" id="nextDay" aria-label="Next day">›</button>
     </div>
     <p class="day-sum" id="daySum"></p>
+    <div class="bonfire" id="bonfireRow" hidden>
+      <span id="bonfireText"></span>
+      <button type="button" class="link" id="bonfireBtn"></button>
+    </div>
+    <div class="confirm fire" id="bonfireConfirm" hidden>
+      <p id="bonfireConfirmText"></p>
+      <div class="form-actions"><button type="button" class="btn primary" id="bonfireYes">Rest today</button><button type="button" class="btn ghost" id="bonfireNo">Keep going</button></div>
+    </div>
     <ul class="habits" id="habitList"></ul>
     <div class="empty" id="emptyState" hidden>
       <p>No habits yet. Add one, or start from a suggestion:</p>
       <div class="starters" id="emptyStarters"></div>
     </div>
     <div class="list-actions" id="listActions">
-      <button type="button" class="btn primary" id="addBtn">Add habit</button>
-      <button type="button" class="btn ghost" id="editToggle">Edit habits</button>
+      <button type="button" class="link" id="addBtn"><span aria-hidden="true">+</span> Add habit</button>
+      <button type="button" class="link quiet" id="editToggle">Edit</button>
     </div>
 
     <form class="sheet" id="habitForm" hidden novalidate>
@@ -233,7 +286,8 @@ button{cursor:pointer}
         <input type="radio" name="diff" id="d3" value="3"><label for="d3">Hard<small>+35 XP · −12 HP</small></label>
       </fieldset>
       <div class="form-actions">
-        <button type="button" class="btn danger" id="archiveBtn" hidden>Archive</button>
+        <button type="button" class="link danger" id="archiveBtn" hidden>Archive</button>
+        <button type="button" class="link danger" id="deleteBtn" hidden>Delete</button>
         <span class="spacer"></span>
         <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
         <button type="submit" class="btn primary" id="saveBtn">Add habit</button>
@@ -241,6 +295,10 @@ button{cursor:pointer}
       <div class="confirm" id="archiveConfirm" hidden>
         <p id="archiveText"></p>
         <div class="form-actions"><button type="button" class="btn danger" id="archiveYes">Archive habit</button><button type="button" class="btn ghost" id="archiveNo">Keep it</button></div>
+      </div>
+      <div class="confirm" id="deleteConfirm" hidden>
+        <p id="deleteText"></p>
+        <div class="form-actions"><button type="button" class="btn danger" id="deleteYes">Delete permanently</button><button type="button" class="btn ghost" id="deleteNo">Keep it</button></div>
       </div>
     </form>
   </section>
@@ -257,27 +315,17 @@ button{cursor:pointer}
     </div>
   </section>
 
-  <section class="stats" aria-label="Totals">
-    <div class="stat"><b id="sBest">0</b><span>Best streak</span></div>
-    <div class="stat"><b id="sChecks">0</b><span>Check-ins</span></div>
-    <div class="stat"><b id="sPerfect">0</b><span>Clean sweeps</span></div>
-    <div class="stat"><b id="sKO">0</b><span>Knockouts</span></div>
-  </section>
-
-  <section aria-labelledby="achH">
-    <div class="sec-head"><h2 id="achH">Achievements</h2><span id="achCount" class="num" style="font-family:var(--f-display)"></span></div>
-    <ul class="ach" id="achList"></ul>
-  </section>
-
   <details class="rules">
     <summary>How scoring works</summary>
     <ul>
       <li>Finishing a habit earns XP by difficulty. Amount habits earn partial XP for partial progress.</li>
       <li>Streaks raise XP: +10% per full week of streak, up to +50%.</li>
-      <li>Each level needs 20% more XP than the one before: 100, 120, 145, 175… Level 10 needs 515, level 20 needs about 3,200.</li>
-      <li>Unfinished habits deal damage when the day ends. Partial progress reduces the damage.</li>
-      <li>Each finished habit heals 1 HP. Finishing every habit in a day heals 3 more.</li>
-      <li>At 0 HP you are knocked out: progress toward the next level is lost and HP refills.</li>
+      <li>Levels get steep fast: each needs 30% more XP than the last through level 10, then 33% more through level 20. Level 20 takes about two years of near-perfect days.</li>
+      <li>Unfinished habits deal damage when the day ends. Partial progress reduces the damage. Each consecutive miss of the same habit hits harder: ×1, ×1.5, ×2, up to ×3.</li>
+      <li>HP regenerates 2 per day on its own. Each finished habit heals 1 more, and finishing every habit in a day heals 3 more.</li>
+      <li>At 0 HP you fail: you drop to the start of the previous level. The XP you lost stays as a bloodstain. Finish every habit the next day to recover it, or it is gone for good.</li>
+      <li>Each failure hollows you: max HP drops by 5, down to 25. Seven clean sweeps in a row restore it.</li>
+      <li>Seven clean sweeps in a row also earn a bonfire (bank up to 2). Resting at one skips damage for the day, holds your streaks and refills HP.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
     </ul>
   </details>
@@ -295,13 +343,46 @@ button{cursor:pointer}
     </div>
   </section>
   <p class="sync" id="sync"></p>
+  </div>
+
+  <div class="view" id="viewTrophies" hidden>
+    <section class="trophy-head" aria-labelledby="achH">
+      <div class="sec-head"><h2 id="achH">Achievements</h2><span id="achCount" class="ach-count num"></span></div>
+      <div class="bar ach-bar" role="progressbar" aria-label="Achievements unlocked" id="achBar"><i id="achFill"></i></div>
+      <p class="ach-next" id="achNext"></p>
+    </section>
+    <section class="stats" aria-label="Totals">
+      <div class="stat"><b id="sBest">0</b><span>Best streak</span></div>
+      <div class="stat"><b id="sChecks">0</b><span>Check-ins</span></div>
+      <div class="stat"><b id="sPerfect">0</b><span>Clean sweeps</span></div>
+      <div class="stat"><b id="sKO">0</b><span>Failures</span></div>
+    </section>
+    <div id="achGroups" class="ach-groups"></div>
+  </div>
 </main>
+<nav class="tabs" aria-label="Pages">
+  <button type="button" class="tab" id="tabToday" aria-current="page">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h2v2H3zM7 4h10v2H7zM3 9h2v2H3zM7 9h10v2H7zM3 14h2v2H3zM7 14h10v2H7z" fill="currentColor"/></svg>
+    <span>Today</span>
+  </button>
+  <button type="button" class="tab" id="tabTrophies">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2h10v2h3v4h-1v1h-2v1h-1v1h-2v2h2v2h2v3H4v-3h2v-2h2v-2H6v-1H5V9H3V8H2V4h3zm0 4H4v1h1zm10 0v1h1V6z" fill="currentColor"/></svg>
+    <span>Trophies <b id="tabCount" class="num"></b></span>
+  </button>
+</nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="death" id="death" hidden role="alertdialog" aria-modal="true" aria-labelledby="deathTitle" aria-describedby="deathBody">
+  <div class="death-inner">
+    <h2 id="deathTitle">FAILED</h2>
+    <div id="deathBody" class="death-body"></div>
+    <button type="button" class="death-btn" id="deathBtn">Get up</button>
+  </div>
+</div>
 
 <script>
 (function(){
 const KEY='streakwork:v1';
-const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, EDIT_DAYS=7;
+const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5;
 const DNAME={1:'Easy',2:'Medium',3:'Hard'};
 const STARTERS=[
   {name:'Gesture drawing',kind:'count',target:30,unit:'min',diff:2},
@@ -329,59 +410,117 @@ function normalize(){
   if(!state||typeof state!=='object')state={};
   if(!Array.isArray(state.habits))state.habits=[];
   if(!state.log||typeof state.log!=='object')state.log={};
+  if(!state.rest||typeof state.rest!=='object')state.rest={};
   state.updated=state.updated||0; state.v=1;
 }
 try{const c=localStorage.getItem(KEY); if(c){state=JSON.parse(c);normalize()}}catch(e){}
 function cache(){try{localStorage.setItem(KEY,JSON.stringify(state));saveError=false}catch(e){saveError=true}}
 
 /* ---------- game math (derived entirely from the log) ---------- */
-function need(L){return Math.round(100*Math.pow(1.2,L-1)/5)*5}
+// Level curve: steep from the start, steeper to 20, then very long.
+const NEED=[0,150];
+for(let L=2;L<=200;L++)NEED[L]=NEED[L-1]*(L<=10?1.3:L<=20?1.33:L<=25?1.12:1.18);
+function need(L){return Math.round(NEED[Math.min(L,200)]/5)*5}
 function levelInfo(xp){let L=1,floor=0;while(xp>=floor+need(L)){floor+=need(L);L++}return{L:L,floor:floor,into:xp-floor,span:need(L)}}
 function isActive(h,d){return h.created<=d&&(!h.archived||d<h.archived)}
 function fracOf(h,v){if(!v)return 0;return h.kind==='count'?Math.min(1,v/h.target):1}
 function multFor(s){return 1+Math.min(.5,.1*Math.floor(s/7))}
+function escFor(m){return Math.min(3,1+.5*(m-1))}
 function compute(){
-  const H=state.habits;
-  const r={xp:0,hp:HPMAX,ko:0,lastKO:null,checks:0,perfect:0,perfRun:0,bestPerfRun:0,streak:{},best:{},hardDone:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1};
-  H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0});
+  const H=state.habits, rest=state.rest||{};
+  const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
+    streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
+    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
+  H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
-  let low=false;
+  let low=false,lastPerfect=null;
   for(let d=start;d<=today;d=addDays(d,1)){
     const act=H.filter(h=>isActive(h,d)); if(!act.length)continue;
-    const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0;
+    let resting=false;
+    if(rest[d]&&r.bonfires>0){r.bonfires--;resting=true;r.restDays[d]=true}
+    const ended=d<today;
+    const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0,done=0;
+    r.maxActive=Math.max(r.maxActive,act.length);
     for(const h of act){
-      const f=fracOf(h,day[h.id]); sum+=f;
-      if(f>=1){r.streak[h.id]++;r.best[h.id]=Math.max(r.best[h.id],r.streak[h.id]);r.checks++;if(h.diff===3)r.hardDone++;r.hp=Math.min(HPMAX,r.hp+1)}
-      else{all=false;if(d<today){r.streak[h.id]=0;dmg+=DMG[h.diff]*(1-f)}}
+      const v=day[h.id], f=fracOf(h,v); sum+=f;
+      if(f>=1){
+        done++;r.streak[h.id]++;r.miss[h.id]=0;r.best[h.id]=Math.max(r.best[h.id],r.streak[h.id]);r.checks++;r.hp=Math.min(r.maxHp,r.hp+1);
+        if(h.diff===3){r.hardDone++;r.hardBest=Math.max(r.hardBest,r.streak[h.id])}
+        if(h.kind==='count'&&v>=2*h.target)r.over++;
+      }
+      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])}}
       gained+=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);
     }
-    r.xp+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
-    if(all){r.perfect++;r.perfRun++;r.bestPerfRun=Math.max(r.bestPerfRun,r.perfRun);r.hp=Math.min(HPMAX,r.hp+3)}
-    else if(d<today)r.perfRun=0;
+    r.xp+=gained; r.earned+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
+    r.maxDone=Math.max(r.maxDone,done); if(done)r.daysActive++;
+    if(all){
+      r.perfect++;r.perfRun++;r.bestPerfRun=Math.max(r.bestPerfRun,r.perfRun);r.hp=Math.min(r.maxHp,r.hp+3);
+      if(parse(d).getDay()===0&&lastPerfect===addDays(d,-1))r.weekends++;
+      lastPerfect=d;
+      if(r.perfRun%7===0){
+        if(r.bonfires<BONFIRE_MAX)r.bonfires++;
+        if(r.hollow>0){r.hollow=0;r.maxHp=HPMAX;r.kindled++}
+      }
+    }
+    else if(ended&&!resting)r.perfRun=0;
+    // bloodstain: recover it with a clean sweep on the next day, or lose it
+    if(r.stain&&d>=r.stain.until){
+      if(all){r.xp+=r.stain.amt;r.recovered++;r.recoveredXP+=r.stain.amt;r.stain=null}
+      else if(ended){r.stainLost={amt:r.stain.amt,d:d};r.stain=null}
+    }
+    if(ended){if(dmg>0)r.noDmgRun=0;else{r.noDmgRun++;r.bestNoDmg=Math.max(r.bestNoDmg,r.noDmgRun)}}
     if(dmg>0){r.hp-=dmg;r.dayDmg[d]=Math.round(dmg);if(r.hp>0&&r.hp<=10)low=true}
-    if(r.hp<=0){r.ko++;r.lastKO=d;r.xp=levelInfo(r.xp).floor;r.hp=HPMAX;low=false}
-    if(low&&r.hp>=HPMAX){r.comeback=true;low=false}
+    if(r.hp<=0){
+      const li=levelInfo(r.xp), nx=li.L>1?li.floor-need(li.L-1):0;
+      if(r.stain)r.stainLost={amt:r.stain.amt,d:d};
+      r.stain={amt:Math.round(r.xp-nx),from:d,until:addDays(d,1)};
+      r.xp=nx;r.ko++;r.lastKO=d;r.lastKOFrom=li.L;r.lastKOTo=levelInfo(nx).L;
+      r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=HPMAX-5*r.hollow;r.hp=r.maxHp;low=false;
+    }
+    else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+REGEN)}
+    if(low&&r.hp>=r.maxHp){r.comeback=true;low=false}
     r.maxLevel=Math.max(r.maxLevel,levelInfo(r.xp).L);
+    for(const a of ACH){if(!r.unlocked[a.id]){const p=a.f(r);if(p[0]>=p[1])r.unlocked[a.id]=d}}
   }
-  r.xp=Math.round(r.xp); r.hp=Math.max(0,Math.round(r.hp));
+  r.xp=Math.round(r.xp); r.earned=Math.round(r.earned); r.hp=Math.max(0,Math.round(r.hp));
   return r;
 }
 function bestStreak(r){let b=0;for(const k in r.best)b=Math.max(b,r.best[k]);return b}
+const GROUPS=['Streaks','Consistency','Levels','Volume','Grit'];
 const ACH=[
-  ['First check-in','Finish any habit once',r=>[r.checks,1]],
-  ['One week','7-day streak on a habit',r=>[bestStreak(r),7]],
-  ['Thirty days','30-day streak on a habit',r=>[bestStreak(r),30]],
-  ['Hundred days','100-day streak on a habit',r=>[bestStreak(r),100]],
-  ['Clean sweep','Finish every habit in one day',r=>[r.perfect,1]],
-  ['Perfect week','7 clean sweeps in a row',r=>[r.bestPerfRun,7]],
-  ['Level 5','Reach level 5',r=>[r.maxLevel,5]],
-  ['Level 10','Reach level 10',r=>[r.maxLevel,10]],
-  ['Level 20','Reach level 20',r=>[r.maxLevel,20]],
-  ['Century','100 check-ins',r=>[r.checks,100]],
-  ['Five hundred','500 check-ins',r=>[r.checks,500]],
-  ['Heavy lifter','Finish hard habits 30 times',r=>[r.hardDone,30]],
-  ['Back from the brink','Fall to 10 HP or less, then heal to full',r=>[r.comeback?1:0,1]],
+  {id:'s7',g:'Streaks',name:'One week',desc:'7-day streak on a habit',f:r=>[bestStreak(r),7]},
+  {id:'s14',g:'Streaks',name:'Two weeks',desc:'14-day streak on a habit',f:r=>[bestStreak(r),14]},
+  {id:'s30',g:'Streaks',name:'Thirty days',desc:'30-day streak on a habit',f:r=>[bestStreak(r),30]},
+  {id:'s100',g:'Streaks',name:'Hundred days',desc:'100-day streak on a habit',f:r=>[bestStreak(r),100]},
+  {id:'s365',g:'Streaks',name:'Full year',desc:'365-day streak on a habit',f:r=>[bestStreak(r),365]},
+  {id:'hard7',g:'Streaks',name:'Diehard',desc:'7-day streak on a hard habit',f:r=>[r.hardBest,7]},
+
+  {id:'p1',g:'Consistency',name:'Clean sweep',desc:'Finish every habit in one day',f:r=>[r.perfect,1]},
+  {id:'wknd',g:'Consistency',name:'Weekend warrior',desc:'Clean sweep on a Saturday and the Sunday after',f:r=>[r.weekends,1]},
+  {id:'p7',g:'Consistency',name:'Perfect week',desc:'7 clean sweeps in a row',f:r=>[r.bestPerfRun,7]},
+  {id:'p30',g:'Consistency',name:'Clean month',desc:'30 clean sweeps in total',f:r=>[r.perfect,30]},
+  {id:'days30',g:'Consistency',name:'Regular',desc:'Check in on 30 different days',f:r=>[r.daysActive,30]},
+
+  {id:'l5',g:'Levels',name:'Level 5',desc:'Reach level 5',f:r=>[r.maxLevel,5]},
+  {id:'l10',g:'Levels',name:'Level 10',desc:'Reach level 10',f:r=>[r.maxLevel,10]},
+  {id:'l15',g:'Levels',name:'Level 15',desc:'Reach level 15',f:r=>[r.maxLevel,15]},
+  {id:'l20',g:'Levels',name:'Level 20',desc:'Reach level 20',f:r=>[r.maxLevel,20]},
+  {id:'xp10k',g:'Levels',name:'Big earner',desc:'Earn 10,000 XP in total, knockouts aside',f:r=>[r.earned,10000]},
+
+  {id:'first',g:'Volume',name:'First check-in',desc:'Finish any habit once',f:r=>[r.checks,1]},
+  {id:'c100',g:'Volume',name:'Century',desc:'100 check-ins',f:r=>[r.checks,100]},
+  {id:'c500',g:'Volume',name:'Five hundred',desc:'500 check-ins',f:r=>[r.checks,500]},
+  {id:'c1000',g:'Volume',name:'Thousand',desc:'1,000 check-ins',f:r=>[r.checks,1000]},
+  {id:'triple',g:'Volume',name:'Triple threat',desc:'Finish 3 habits in one day',f:r=>[r.maxDone,3]},
+  {id:'roster',g:'Volume',name:'Full roster',desc:'Track 5 habits at the same time',f:r=>[r.maxActive,5]},
+  {id:'over',g:'Volume',name:'Overachiever',desc:'Log double the target on an amount habit',f:r=>[r.over,1]},
+
+  {id:'hard30',g:'Grit',name:'Heavy lifter',desc:'Finish hard habits 30 times',f:r=>[r.hardDone,30]},
+  {id:'iron',g:'Grit',name:'Ironclad',desc:'30 days in a row without taking damage',f:r=>[r.bestNoDmg,30]},
+  {id:'brink',g:'Grit',name:'Back from the brink',desc:'Fall to 10 HP or less, then heal to full',f:r=>[r.comeback?1:0,1]},
+  {id:'stain',g:'Grit',name:'Retrieved',desc:'Recover a bloodstain',f:r=>[r.recovered,1]},
+  {id:'kindle',g:'Grit',name:'Kindled',desc:'Cure hollowing with a perfect week',f:r=>[r.kindled,1]},
 ];
 
 /* ---------- persistence (on-device only) ---------- */
@@ -426,10 +565,13 @@ function readImport(file){
 }
 
 function commit(){
-  const before=R?levelInfo(R.xp):null, beforeXP=R?R.xp:0;
+  const before=R?levelInfo(R.xp):null, beforeXP=R?R.xp:0, beforeAch=R?R.unlocked:{}, beforeRec=R?R.recovered:0, beforeRecXP=R?R.recoveredXP:0;
   state.updated=Date.now();cache();queueWrite();render();
   const after=levelInfo(R.xp), diff=R.xp-beforeXP;
-  if(before&&after.L>before.L)toast('Level '+after.L+'!',true);
+  const fresh=ACH.filter(a=>R.unlocked[a.id]&&!beforeAch[a.id]);
+  if(before&&R.recovered>beforeRec){toast('Bloodstain recovered +'+(R.recoveredXP-beforeRecXP)+' XP',true);return}
+  if(before&&fresh.length)toast('Unlocked: '+fresh[0].name+(fresh.length>1?' +'+(fresh.length-1):''),true);
+  else if(before&&after.L>before.L)toast('Level '+after.L+'!',true);
   else if(diff>0)toast('+'+diff+' XP');
 }
 let tTimer=null;
@@ -453,6 +595,8 @@ function addHabit(o){
 function render(){
   const t=todayStr(); if(t!==today){today=t;if(viewDate>today)viewDate=today}
   R=compute();
+  if(typeof state.seenKO!=='number'){state.seenKO=R.ko;cache()}
+  if(R.ko>state.seenKO&&$('death').hidden)showDeath();
   renderHud();renderDay();renderHeat();renderStats();renderAch();renderSync();
 }
 function renderHud(){
@@ -462,11 +606,20 @@ function renderHud(){
   $('xpText').textContent=li.into+'/'+li.span;
   $('xpBar').setAttribute('aria-valuenow',li.into);$('xpBar').setAttribute('aria-valuemax',li.span);
   $('hpFill').style.width=(R.hp/HPMAX*100)+'%';
-  $('hpText').textContent=R.hp+'/'+HPMAX;
-  $('hpBar').setAttribute('aria-valuenow',R.hp);$('hpBar').setAttribute('aria-valuemax',HPMAX);
+  $('hpHollow').style.width=((HPMAX-R.maxHp)/HPMAX*100)+'%';
+  $('hpText').textContent=R.hp+'/'+R.maxHp;
+  $('hpBar').setAttribute('aria-valuenow',R.hp);$('hpBar').setAttribute('aria-valuemax',R.maxHp);
+  const st=$('hudStatus');st.textContent='';
+  const chip=(label,val,cls)=>{const sp=document.createElement('span');if(cls)sp.className=cls;sp.textContent=label+' ';const b=document.createElement('b');b.textContent=val;sp.appendChild(b);st.appendChild(sp)};
+  chip('Failures',R.ko,R.ko?'bad':'');
+  chip('Bonfires',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
+  if(R.hollow)chip('Hollow',R.hollow,'bad');
   const n=$('hudNote');n.classList.remove('warn');
-  const yd=addDays(today,-1);
-  if(R.lastKO&&R.lastKO>=addDays(today,-6)){n.textContent='Knocked out on '+fmt(R.lastKO)+'. Progress toward the next level was lost.';n.classList.add('warn')}
+  const yd=addDays(today,-1), resting=!!R.restDays[today];
+  if(R.stain&&R.stain.until<=today){n.textContent='Bloodstain: '+R.stain.amt+' XP lies where you fell. Finish every habit today to recover it.';n.classList.add('warn')}
+  else if(R.stainLost&&R.stainLost.d>=yd){n.textContent='Bloodstain lost. '+R.stainLost.amt+' XP is gone for good.';n.classList.add('warn')}
+  else if(resting)n.textContent='Resting at a bonfire. No damage today, streaks hold, HP refills tonight.';
+  else if(R.hollow){n.textContent='Hollowed: max HP '+R.maxHp+'. Seven clean sweeps in a row restore it.';n.classList.add('warn')}
   else if(R.hp<=15&&state.habits.length){n.textContent='Low HP. Finish today’s habits to heal.';n.classList.add('warn')}
   else if(R.dayDmg[yd]){n.textContent='Took '+R.dayDmg[yd]+' damage from yesterday’s unfinished habits.'}
   else n.textContent=state.habits.length?'Unfinished habits deal damage when the day ends.':'Add habits to start earning XP.';
@@ -482,6 +635,11 @@ function renderDay(){
   let sum=act.length?done+' of '+act.length+' done · +'+(R.dayXP[d]||0)+' XP':'';
   if(d<today&&R.dayDmg[d])sum+=' · −'+R.dayDmg[d]+' HP';
   $('daySum').textContent=sum;
+  const rested=!!R.restDays[today], canRest=!rested&&R.bonfires>0&&!(state.rest||{})[today]&&activeOn(today).length;
+  $('bonfireRow').hidden=d!==today||(!rested&&!canRest)||editMode;
+  if(rested){$('bonfireText').textContent='Resting at a bonfire today.';$('bonfireBtn').textContent='Undo';}
+  else if(canRest){$('bonfireText').textContent=R.bonfires+' bonfire'+(R.bonfires===1?'':'s')+' banked.';$('bonfireBtn').textContent='Rest today';}
+  if($('bonfireRow').hidden)$('bonfireConfirm').hidden=true;
   const list=$('habitList');list.textContent='';
   const items=editMode?state.habits.filter(h=>!h.archived||h.archived>today):act;
   $('emptyState').hidden=!!state.habits.length||!$('habitForm').hidden;
@@ -507,7 +665,10 @@ function renderDay(){
     const info=document.createElement('span');
     const m=multFor(s);
     info.textContent=DNAME[h.diff]+' · '+BASE[h.diff]+' XP'+(m>1?' ×'+m.toFixed(1):'')+(h.kind==='count'?' · '+v+'/'+h.target+(h.unit?' '+h.unit:''):'');
-    meta.append(st,info);main.append(nm,meta);
+    meta.append(st,info);
+    const m2=R.miss[h.id]||0;
+    if(m2&&d===today&&!R.restDays[today]){const w=document.createElement('span');w.className='esc';w.textContent='Missed '+m2+(m2===1?' day':' days')+' \u00b7 next miss \u00d7'+escFor(m2+1).toFixed(1)+' damage';meta.appendChild(w)}
+    main.append(nm,meta);
     li.append(btn,main);
     if(editMode){
       const eb=document.createElement('button');eb.type='button';eb.className='edit-btn';eb.textContent='Edit';
@@ -527,7 +688,7 @@ function renderDay(){
     }
     list.appendChild(li);
   }
-  $('editToggle').textContent=editMode?'Done editing':'Edit habits';
+  $('editToggle').textContent=editMode?'Done':'Edit';
   $('editToggle').hidden=!state.habits.length;
   $('addBtn').disabled=!ready;$('editToggle').disabled=!ready;
   $('listActions').hidden=!$('habitForm').hidden;
@@ -601,22 +762,37 @@ function renderStats(){
   $('sBest').textContent=bestStreak(R);$('sChecks').textContent=R.checks;$('sPerfect').textContent=R.perfect;$('sKO').textContent=R.ko;
 }
 function renderAch(){
-  const ul=$('achList');ul.textContent='';let got=0;
-  const rows=ACH.map(a=>{const p=a[2](R);return{a,cur:p[0],goal:p[1],ok:p[0]>=p[1]}});
-  rows.sort((x,y)=>(y.ok-x.ok)||((y.cur/y.goal)-(x.cur/x.goal)));
-  for(const r of rows){
-    if(r.ok)got++;
-    const li=document.createElement('li');if(r.ok)li.className='got';
-    const m=document.createElement('div');m.className='medal';m.textContent=r.ok?'★':'';m.setAttribute('aria-hidden','true');
-    const body=document.createElement('div');
-    const n=document.createElement('div');n.className='a-name';n.textContent=r.a[0];
-    const ds=document.createElement('div');ds.className='a-desc';
-    ds.textContent=r.ok?r.a[1]:r.a[1]+' · '+Math.min(r.cur,r.goal)+'/'+r.goal;
-    body.append(n,ds);
-    if(!r.ok){const pr=document.createElement('div');pr.className='a-prog';const i=document.createElement('i');i.style.width=Math.min(100,r.cur/r.goal*100)+'%';pr.appendChild(i);body.appendChild(pr)}
-    li.append(m,body);ul.appendChild(li);
-  }
+  const rows=ACH.map(a=>{const p=a.f(R);return{a,cur:Math.min(p[0],p[1]),goal:p[1],when:R.unlocked[a.id]||null}});
+  const got=rows.filter(x=>x.when).length;
   $('achCount').textContent=got+'/'+ACH.length;
+  $('tabCount').textContent=got+'/'+ACH.length;
+  $('achFill').style.width=(got/ACH.length*100)+'%';
+  $('achBar').setAttribute('aria-valuenow',got);$('achBar').setAttribute('aria-valuemax',ACH.length);
+  const next=rows.filter(x=>!x.when).sort((x,y)=>(y.cur/y.goal)-(x.cur/x.goal))[0];
+  $('achNext').textContent=next?'Closest: '+next.a.name+' · '+next.cur.toLocaleString()+'/'+next.goal.toLocaleString():'Every achievement unlocked.';
+  const wrap=$('achGroups');wrap.textContent='';
+  for(const g of GROUPS){
+    const items=rows.filter(x=>x.a.g===g);
+    const sec=document.createElement('section');sec.className='ach-group';
+    const h=document.createElement('h3');h.textContent=g;
+    const c=document.createElement('span');c.textContent=items.filter(x=>x.when).length+'/'+items.length;h.appendChild(c);
+    const ul=document.createElement('ul');ul.className='ach';
+    for(const r of items){
+      const li=document.createElement('li');if(r.when)li.className='got';
+      const m=document.createElement('div');m.className='medal';m.textContent=r.when?'★':'';m.setAttribute('aria-hidden','true');
+      const body=document.createElement('div');
+      const n=document.createElement('div');n.className='a-name';n.textContent=r.a.name;
+      const ds=document.createElement('div');ds.className='a-desc';ds.textContent=r.a.desc;
+      body.append(n,ds);
+      if(r.when){const w=document.createElement('div');w.className='a-when';w.textContent='Unlocked '+fmt(r.when,r.when.slice(0,4)===today.slice(0,4)?{month:'short',day:'numeric'}:{month:'short',day:'numeric',year:'numeric'});body.appendChild(w)}
+      else{
+        const ds2=document.createElement('div');ds2.className='a-desc num';ds2.textContent=r.cur.toLocaleString()+'/'+r.goal.toLocaleString();body.appendChild(ds2);
+        const pr=document.createElement('div');pr.className='a-prog';const i=document.createElement('i');i.style.width=(r.cur/r.goal*100)+'%';pr.appendChild(i);body.appendChild(pr);
+      }
+      li.append(m,body);ul.appendChild(li);
+    }
+    sec.append(h,ul);wrap.appendChild(sec);
+  }
 }
 function renderSync(){
   const el=$('sync');el.classList.toggle('err',saveError);
@@ -628,6 +804,31 @@ function renderSync(){
   n.textContent='Last backup: '+(age===0?'today':age===1?'yesterday':age+' days ago')+'.';
   if(age>=14)n.classList.add('warn');
 }
+function showDeath(){
+  const b=$('deathBody');b.textContent='';
+  const line=(t,c)=>{const p=document.createElement('p');p.textContent=t;if(c)p.className=c;b.appendChild(p)};
+  const n=R.ko-state.seenKO;
+  if(n>1)line('You fell '+n+' times while you were away.');
+  line(R.lastKOFrom>1?'Level '+R.lastKOFrom+' \u2192 '+R.lastKOTo:'Your XP is gone.','big');
+  if(R.stain&&R.stain.until<=today)line('Your bloodstain holds '+R.stain.amt+' XP. Finish every habit today to recover it. Fall short and it is lost.');
+  else if(R.stain)line('Your bloodstain holds '+R.stain.amt+' XP. Finish every habit tomorrow to recover it.');
+  if(R.stainLost&&R.lastKO&&R.stainLost.d>=R.lastKO)line('Your bloodstain was not recovered. '+R.stainLost.amt+' XP is gone for good.');
+  line('Max HP is now '+R.maxHp+'. Seven clean sweeps in a row restore it.');
+  line('Failures: '+R.ko,'dim');
+  $('death').hidden=false;document.body.style.overflow='hidden';
+  setTimeout(()=>$('deathBtn').focus(),50);
+}
+$('deathBtn').addEventListener('click',()=>{
+  state.seenKO=R.ko;cache();$('death').hidden=true;document.body.style.overflow='';
+});
+$('bonfireBtn').addEventListener('click',()=>{
+  if(R.restDays[today]){state.rest=state.rest||{};delete state.rest[today];commit();return}
+  $('bonfireConfirmText').textContent='Spend 1 of '+R.bonfires+' bonfires to rest today? Unfinished habits deal no damage, streaks and your clean-sweep run hold, and HP refills to '+R.maxHp+' tonight.';
+  $('bonfireConfirm').hidden=false;
+});
+$('bonfireNo').addEventListener('click',()=>{$('bonfireConfirm').hidden=true});
+$('bonfireYes').addEventListener('click',()=>{state.rest=state.rest||{};state.rest[today]=true;$('bonfireConfirm').hidden=true;commit();toast('Bonfire lit')});
+
 /* ---------- form ---------- */
 function syncKind(){$('countFields').hidden=!$('kCount').checked}
 function openForm(h){
@@ -639,7 +840,7 @@ function openForm(h){
   $('kCheck').disabled=$('kCount').disabled=!!h;
   $('fTarget').value=h&&h.kind==='count'?h.target:30;$('fUnit').value=h?h.unit||'':'';
   $('d'+(h?h.diff:2)).checked=true;
-  $('archiveBtn').hidden=!h;$('archiveConfirm').hidden=true;
+  $('archiveBtn').hidden=!h;$('deleteBtn').hidden=!h;$('archiveConfirm').hidden=true;$('deleteConfirm').hidden=true;
   $('formStarters').hidden=!!h;if(!h)fillStarters($('formStarters'));
   syncKind();
   $('habitForm').hidden=false;render();
@@ -670,9 +871,25 @@ $('archiveBtn').addEventListener('click',()=>{
   const h=state.habits.find(x=>x.id===editingId);if(!h)return;
   const doneToday=fracOf(h,(state.log[today]||{})[h.id])>=1;
   $('archiveText').textContent='Archive “'+h.name+'”? It stops counting '+(doneToday?'after today':'from today')+'. Its history and earned XP stay.';
-  $('archiveConfirm').hidden=false;
+  $('deleteConfirm').hidden=true;$('archiveConfirm').hidden=false;
 });
 $('archiveNo').addEventListener('click',()=>{$('archiveConfirm').hidden=true});
+$('deleteBtn').addEventListener('click',()=>{
+  const h=state.habits.find(x=>x.id===editingId);if(!h)return;
+  const n=Object.keys(state.log).filter(d=>state.log[d][h.id]).length;
+  $('deleteText').textContent='Delete \u201c'+h.name+'\u201d permanently? This removes its '+n+' logged day'+(n===1?'':'s')+' and all XP it earned, and can\u2019t be undone. To stop tracking but keep its history, use Archive instead.';
+  $('archiveConfirm').hidden=true;$('deleteConfirm').hidden=false;
+});
+$('deleteNo').addEventListener('click',()=>{$('deleteConfirm').hidden=true});
+$('deleteYes').addEventListener('click',()=>{
+  const i=state.habits.findIndex(x=>x.id===editingId);if(i<0)return;
+  const id=state.habits[i].id;state.habits.splice(i,1);
+  for(const d of Object.keys(state.log)){delete state.log[d][id];if(!Object.keys(state.log[d]).length)delete state.log[d]}
+  if(heatSel===id)heatSel='all';
+  $('habitForm').hidden=true;$('deleteConfirm').hidden=true;editingId=null;
+  if(!state.habits.some(x=>!x.archived||x.archived>today))editMode=false;
+  commit();toast('Habit deleted');
+});
 $('archiveYes').addEventListener('click',()=>{
   const i=state.habits.findIndex(x=>x.id===editingId);if(i<0)return;
   const h=state.habits[i];
@@ -692,6 +909,15 @@ $('heat').addEventListener('click',e=>{
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&todayStr()!==today){viewDate=todayStr();render()}});
 
+function showView(v){
+  const t=v==='trophies';
+  $('viewToday').hidden=t;$('viewTrophies').hidden=!t;
+  $('tabToday').toggleAttribute('aria-current',!t);$('tabTrophies').toggleAttribute('aria-current',t);
+  if(t)$('tabTrophies').setAttribute('aria-current','page');else $('tabToday').setAttribute('aria-current','page');
+  window.scrollTo(0,0);
+}
+$('tabToday').addEventListener('click',()=>showView('today'));
+$('tabTrophies').addEventListener('click',()=>showView('trophies'));
 $('exportBtn').addEventListener('click',exportBackup);
 $('importBtn').addEventListener('click',()=>{$('importFile').value='';$('importFile').click()});
 $('importFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)readImport(f)});
