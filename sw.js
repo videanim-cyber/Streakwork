@@ -1,6 +1,6 @@
 // Streakwork service worker: keeps the app shell cached so it opens with no connection.
 // When you change any file, bump VERSION so phones pick up the new copy.
-const VERSION = 'streakwork-v39';
+const VERSION = 'streakwork-v40';
 const SHELL = [
   './',
   './index.html',
@@ -9,10 +9,7 @@ const SHELL = [
   './icon-192.png',
   './icon-512.png',
   './icon-maskable-512.png',
-  './jersey-10-latin-400-normal.woff2',
-  './rubik-latin-400-normal.woff2',
-  './rubik-latin-500-normal.woff2',
-  './rubik-latin-600-normal.woff2'
+  './jersey-10-latin-400-normal.woff2'
 ];
 
 self.addEventListener('install', (event) => {
