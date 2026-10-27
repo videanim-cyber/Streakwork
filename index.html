@@ -1492,8 +1492,14 @@ function fixGap(){
   }catch(e){}
   document.documentElement.style.setProperty('--gap',g+'px');
 }
-fixGap();addEventListener('resize',fixGap);addEventListener('orientationchange',()=>setTimeout(fixGap,300));
+// iOS can settle the viewport size after launch without a resize event, so re-measure a few times.
+fixGap();addEventListener('resize',fixGap);addEventListener('load',fixGap);addEventListener('pageshow',fixGap);
+addEventListener('orientationchange',()=>setTimeout(fixGap,300));
+if(window.visualViewport)visualViewport.addEventListener('resize',fixGap);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(fixGap,100)});
+[100,400,1000,2500].forEach(t=>setTimeout(fixGap,t));
 function diag(){
+  fixGap();
   const vv=window.visualViewport||{};const nav=document.querySelector('.tabs').getBoundingClientRect();
   $('diagOut').textContent=[
     'screen '+screen.width+'x'+screen.height+' @'+devicePixelRatio,
