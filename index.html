@@ -46,7 +46,7 @@ body{margin:0;-webkit-tap-highlight-color:transparent}
 /* status-bar strip: always dark so the white status bar text stays readable */
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#100D0B;z-index:40}
 /* the page scrolls inside this box so the scroll indicator can be hidden */
-#scroller{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:calc(-1 * var(--gap,0px));overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
+#scroller{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 #scroller::-webkit-scrollbar{display:none;width:0;height:0}
 [hidden]{display:none!important}
@@ -392,8 +392,8 @@ li.done .ql-name{color:var(--a55)}
 .cat-pick button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--ink)}
 
 /* Tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:calc(-1 * var(--gap,0px));z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
-  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
+  padding-bottom:var(--tabPad,env(safe-area-inset-bottom,0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;border:none;background:none;color:var(--muted);font-size:11.5px;font-weight:500}
 .tab svg{width:22px;height:22px}
 .tab[aria-current="page"]{color:var(--accent)}
@@ -1685,14 +1685,17 @@ document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.pre
 let lastTouch=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTouch<300&&!e.target.closest('input,select,textarea'))e.preventDefault();lastTouch=n},{passive:false});
 
 // iOS home-screen apps can get a layout viewport that is shorter than the screen
-// by the status-bar height, leaving an empty band at the bottom. Extend into it.
+// by the status-bar height, leaving a band at the bottom that the app cannot draw in.
 function fixGap(){
   let g=0;
   try{
     const standalone=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
     if(standalone){g=Math.round(screen.height-window.innerHeight);if(!(g>0&&g<=120))g=0}
   }catch(e){}
-  document.documentElement.style.setProperty('--gap',g+'px');
+  // When iOS leaves a band below the app, the home indicator sits in that band,
+  // so the tab bar no longer needs its own home-indicator padding.
+  const st=document.documentElement.style;st.setProperty('--gap',g+'px');
+  if(g>0)st.setProperty('--tabPad','6px');else st.removeProperty('--tabPad');
 }
 // iOS can settle the viewport size after launch without a resize event, so re-measure a few times.
 fixGap();addEventListener('resize',fixGap);addEventListener('load',fixGap);addEventListener('pageshow',fixGap);
