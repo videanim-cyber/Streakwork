@@ -476,9 +476,6 @@ h3{font-size:16px}
     </div>
   </section>
   <p class="sync" id="sync"></p>
-  <details class="rules" id="diag"><summary>Screen info (for fixing the bottom gap)</summary><pre id="diagOut" style="white-space:pre-wrap;font-size:12px;margin:8px 0 0;user-select:text;-webkit-user-select:text"></pre></details>
-  <i id="envProbe" style="position:fixed;left:0;bottom:0;width:1px;height:env(safe-area-inset-bottom,0px);visibility:hidden;pointer-events:none"></i>
-  <i id="envProbeT" style="position:fixed;left:0;top:0;width:1px;height:env(safe-area-inset-top,0px);visibility:hidden;pointer-events:none"></i>
   </div>
 
   <div class="view" id="viewFocus" hidden>
@@ -1498,20 +1495,6 @@ addEventListener('orientationchange',()=>setTimeout(fixGap,300));
 if(window.visualViewport)visualViewport.addEventListener('resize',fixGap);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(fixGap,100)});
 [100,400,1000,2500].forEach(t=>setTimeout(fixGap,t));
-function diag(){
-  fixGap();
-  const vv=window.visualViewport||{};const nav=document.querySelector('.tabs').getBoundingClientRect();
-  $('diagOut').textContent=[
-    'screen '+screen.width+'x'+screen.height+' @'+devicePixelRatio,
-    'innerHeight '+innerHeight+'  clientHeight '+document.documentElement.clientHeight,
-    'visualViewport h '+Math.round(vv.height)+' top '+Math.round(vv.offsetTop||0),
-    'safe area top '+$('envProbeT').offsetHeight+'  bottom '+$('envProbe').offsetHeight,
-    'tab bar top '+Math.round(nav.top)+' bottom '+Math.round(nav.bottom)+'  gap fix '+getComputedStyle(document.documentElement).getPropertyValue('--gap'),
-    'standalone '+(navigator.standalone===true)+' / '+matchMedia('(display-mode: standalone)').matches,
-    navigator.userAgent
-  ].join('\n');
-}
-$('diag').addEventListener('toggle',diag);addEventListener('resize',()=>{if($('diag').open)diag()});
 
 checkFocus();
 render();
