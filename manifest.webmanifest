@@ -1,7 +1,7 @@
 {
   "name": "Streakwork",
   "short_name": "Streakwork",
-  "description": "Personal habit tracker with XP, levels and streaks.",
+  "description": "Personal task tracker with XP, levels and streaks.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

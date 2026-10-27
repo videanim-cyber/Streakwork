@@ -1,6 +1,6 @@
 // Streakwork service worker: keeps the app shell cached so it opens with no connection.
 // When you change any file, bump VERSION so phones pick up the new copy.
-const VERSION = 'streakwork-v32';
+const VERSION = 'streakwork-v33';
 const SHELL = [
   './',
   './index.html',
