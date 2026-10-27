@@ -48,7 +48,7 @@ body{margin:0;-webkit-tap-highlight-color:transparent}
 /* status-bar strip: always dark so the white status bar text stays readable */
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#100D0B;z-index:40}
 /* the page scrolls inside this box so the scroll indicator can be hidden */
-#scroller{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
+#scroller{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:calc(-1 * var(--gap,0px));overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
   padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 #scroller::-webkit-scrollbar{display:none;width:0;height:0}
 [hidden]{display:none!important}
@@ -323,7 +323,7 @@ h3{font-size:16px}
 .pb-link{border:none;background:none;padding:0;color:var(--accent);font-family:var(--f-display);font-size:16px;letter-spacing:.03em}
 
 /* Tab bar */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
+.tabs{position:fixed;left:0;right:0;bottom:calc(-1 * var(--gap,0px));z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 6px;border:none;background:none;color:var(--muted);font-size:11.5px;font-weight:500}
 .tab svg{width:22px;height:22px}
@@ -1482,6 +1482,17 @@ $('importYes').addEventListener('click',()=>{
 document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
 let lastTouch=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTouch<300&&!e.target.closest('input,select,textarea'))e.preventDefault();lastTouch=n},{passive:false});
 
+// iOS home-screen apps can get a layout viewport that is shorter than the screen
+// by the status-bar height, leaving an empty band at the bottom. Extend into it.
+function fixGap(){
+  let g=0;
+  try{
+    const standalone=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+    if(standalone){g=Math.round(screen.height-window.innerHeight);if(!(g>0&&g<=120))g=0}
+  }catch(e){}
+  document.documentElement.style.setProperty('--gap',g+'px');
+}
+fixGap();addEventListener('resize',fixGap);addEventListener('orientationchange',()=>setTimeout(fixGap,300));
 function diag(){
   const vv=window.visualViewport||{};const nav=document.querySelector('.tabs').getBoundingClientRect();
   $('diagOut').textContent=[
@@ -1489,7 +1500,7 @@ function diag(){
     'innerHeight '+innerHeight+'  clientHeight '+document.documentElement.clientHeight,
     'visualViewport h '+Math.round(vv.height)+' top '+Math.round(vv.offsetTop||0),
     'safe area top '+$('envProbeT').offsetHeight+'  bottom '+$('envProbe').offsetHeight,
-    'tab bar top '+Math.round(nav.top)+' bottom '+Math.round(nav.bottom),
+    'tab bar top '+Math.round(nav.top)+' bottom '+Math.round(nav.bottom)+'  gap fix '+getComputedStyle(document.documentElement).getPropertyValue('--gap'),
     'standalone '+(navigator.standalone===true)+' / '+matchMedia('(display-mode: standalone)').matches,
     navigator.userAgent
   ].join('\n');
