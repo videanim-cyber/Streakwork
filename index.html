@@ -164,7 +164,9 @@ button{cursor:pointer}
 .sheet{background:var(--surface);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:16px;display:flex;flex-direction:column;gap:12px}
 .field{display:flex;flex-direction:column;gap:4px}
 .field label,.seg legend{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.field input{border:2px solid var(--line);background:var(--bg);padding:9px 10px;min-width:0}
+.field input{border:2px solid var(--line);background:var(--bg);padding:9px 10px;min-width:0;width:100%}
+.row2>*{min-width:0}
+.sheet>*{flex-shrink:0}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .seg{border:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .seg legend{margin-bottom:4px;padding:0}
@@ -297,12 +299,12 @@ h3{font-size:16px}
 .pb-sub{font-size:16px;color:var(--a50);margin-top:2px}
 .pb-grid{display:grid;grid-template-columns:28px 1fr auto;gap:7px 10px;align-items:center;margin-top:10px;font-size:18px}
 .pb-grid .num{min-width:58px;text-align:right;font-variant-numeric:tabular-nums}
-.seg{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;height:12px}
-.seg i{background:var(--a20)}
-.seg i.on{background:var(--accent)}
-.seg i.hp{background:var(--hp)}
-.seg i.xp{background:var(--xp)}
-.seg i.hollow{background:repeating-linear-gradient(135deg,var(--a50) 0 2px,transparent 2px 4px)}
+.meter{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;height:12px}
+.meter i{background:var(--a20)}
+.meter i.on{background:var(--accent)}
+.meter i.hp{background:var(--hp)}
+.meter i.xp{background:var(--xp)}
+.meter i.hollow{background:repeating-linear-gradient(135deg,var(--a50) 0 2px,transparent 2px 4px)}
 .pb-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin-top:10px;padding-top:6px;border-top:1px solid var(--a50);font-size:16px;letter-spacing:.03em}
 .pb-foot .bad{color:var(--hp)} .pb-foot .fire{color:var(--fire)}
 .ladder{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;font-size:18px}
@@ -321,6 +323,38 @@ h3{font-size:16px}
 .pblog .bad{color:var(--hp)} .pblog .gold{color:var(--xp)} .pblog .good{color:var(--ink)} .pblog .fire{color:var(--fire)}
 .pblog .none{grid-column:1/-1;color:var(--a50)}
 .pb-link{border:none;background:none;padding:0;color:var(--accent);font-family:var(--f-display);font-size:16px;letter-spacing:.03em}
+
+/* Quest log */
+.ql{border:2px solid var(--accent);color:var(--accent);font-family:var(--f-display);--a12:color-mix(in srgb,var(--accent) 12%,transparent);--a20:color-mix(in srgb,var(--accent) 20%,transparent);--a35:color-mix(in srgb,var(--accent) 35%,transparent);--a55:color-mix(in srgb,var(--accent) 55%,transparent)}
+.ql-hd{padding:4px 10px;background:var(--accent);color:var(--bg);font-size:19px;display:flex;justify-content:space-between;letter-spacing:.03em}
+.ql-list{list-style:none;margin:0;padding:0}
+.ql-list>li{border-top:1px solid var(--a20)}
+.ql-list>li:first-child{border-top:none}
+.ql-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center}
+.ql-box{width:44px;height:44px;border:none;background:none;padding:0;display:grid;place-items:center}
+.ql-box i{width:20px;height:20px;border:2px solid var(--accent);display:grid;place-items:center;font-style:normal;font-size:15px;line-height:1;color:var(--bg)}
+.ql-box[aria-pressed="true"] i{background:var(--accent)}
+.ql-box:disabled{opacity:.5}
+.ql-name{border:none;background:none;color:inherit;font-family:var(--f-display);font-size:21px;text-align:left;padding:10px 0;min-width:0;overflow-wrap:anywhere;line-height:1.05}
+.ql-name:after{content:" \25BE";font-size:12px;color:var(--a55)}
+li.open .ql-name:after{content:" \25B4"}
+.ql-v{font-size:18px;padding:0 10px 0 8px;white-space:nowrap}
+.ql-v.bad{color:var(--hp)}
+li.open{background:var(--a12)}
+li.done .ql-name{color:var(--a55)}
+.ql-x{padding:0 10px 12px 44px;display:flex;flex-direction:column;gap:8px}
+.ql-meter{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;height:10px}
+.ql-meter i{background:var(--a20)} .ql-meter i.on{background:var(--accent)}
+.ql-kv{display:flex;flex-wrap:wrap;gap:3px 14px;font-size:16px;color:var(--a55);letter-spacing:.03em}
+.ql-kv b{font-weight:400;color:var(--accent)} .ql-kv .bad{color:var(--hp)} .ql-kv .g{color:var(--xp)}
+.ql-step{display:flex;gap:6px;align-items:center}
+.ql-step button{border:2px solid var(--accent);background:none;color:var(--accent);font-family:var(--f-display);font-size:18px;min-width:52px;height:34px}
+.ql-step button:disabled{opacity:.4}
+.ql-plan{font-size:16px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}
+.ql-edit{border:none;background:none;color:var(--accent);font-family:var(--f-display);font-size:17px;padding:0 10px;height:44px}
+.ql-fold{width:100%;display:flex;justify-content:space-between;border:none;border-top:2px solid var(--a35);background:none;color:var(--a55);font-family:var(--f-display);font-size:18px;padding:7px 10px;letter-spacing:.03em}
+.ql .g{color:var(--xp)}
+.ql-empty{padding:10px;font-size:17px;color:var(--a55)}
 
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:calc(-1 * var(--gap,0px));z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
@@ -359,9 +393,9 @@ h3{font-size:16px}
     <div class="pb-panel" id="pbStat" role="tabpanel" aria-labelledby="pbTabStat">
       <div class="pb-head" id="rankTitle"></div>
       <div class="pb-grid">
-        <span>HP</span><div class="seg" id="segHp" role="progressbar" aria-label="Health"></div><span class="num" id="hpText"></span>
-        <span>XP</span><div class="seg" id="segXp" role="progressbar" aria-label="Experience"></div><span class="num" id="xpText"></span>
-        <span>RK</span><div class="seg" id="segRk" role="progressbar" aria-label="Focus hours a day"></div><span class="num" id="rankVal"></span>
+        <span>HP</span><div class="meter" id="segHp" role="progressbar" aria-label="Health"></div><span class="num" id="hpText"></span>
+        <span>XP</span><div class="meter" id="segXp" role="progressbar" aria-label="Experience"></div><span class="num" id="xpText"></span>
+        <span>RK</span><div class="meter" id="segRk" role="progressbar" aria-label="Focus hours a day"></div><span class="num" id="rankVal"></span>
       </div>
       <div class="pb-foot" id="hudStatus"></div>
     </div>
@@ -396,7 +430,12 @@ h3{font-size:16px}
       <p id="bonfireConfirmText"></p>
       <div class="form-actions"><button type="button" class="btn primary" id="bonfireYes">Rest today</button><button type="button" class="btn ghost" id="bonfireNo">Keep going</button></div>
     </div>
-    <ul class="habits" id="habitList"></ul>
+    <div class="ql" id="questLog">
+      <div class="ql-hd"><span>QUESTS</span><span id="qlCount"></span></div>
+      <ul class="ql-list" id="habitList"></ul>
+      <button type="button" class="ql-fold" id="qlFold" aria-expanded="false"><span id="qlFoldL"></span><span class="g" id="qlFoldXP"></span></button>
+      <ul class="ql-list ql-done" id="doneList" hidden></ul>
+    </div>
     <div class="empty" id="emptyState" hidden>
       <p>No habits yet. Tap Add habit to start.</p>
     </div>
@@ -661,7 +700,7 @@ function compute(){
   const H=state.habits, rest=state.rest||{};
   const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
     streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
-    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],rank:0,maxRank:0,maxAvg:0,curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
+    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],rank:0,maxRank:0,maxAvg:0,hXP:{},missTotal:{},curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
   H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
@@ -685,8 +724,8 @@ function compute(){
         if(h.diff===3){r.hardDone++;r.hardBest=Math.max(r.hardBest,r.streak[h.id])}
         if(h.kind==='count'&&v>=2*h.target)r.over++;
       }
-      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)}}
-      gained+=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);
+      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;r.missTotal[h.id]=(r.missTotal[h.id]||0)+1;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)}}
+      {const hx=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);gained+=hx;(r.hXP[d]||(r.hXP[d]={}))[h.id]=Math.round(hx)}
     }
     if(cur.withering)gained*=.75;
     const fs=FB[d];
@@ -951,6 +990,7 @@ function renderHud(){
 }
 function activeOn(d){return state.habits.filter(h=>isActive(h,d))}
 function canEditDate(d){return d<=today&&d>addDays(today,-EDIT_DAYS)}
+let openQuests=new Set(), showDone=false;
 function renderDay(){
   const d=viewDate, act=activeOn(d), day=state.log[d]||{};
   $('dayLabel').textContent=d===today?'Today':d===addDays(today,-1)?'Yesterday':fmt(d,{weekday:'short',month:'short',day:'numeric'});
@@ -965,56 +1005,77 @@ function renderDay(){
   if(rested){$('bonfireText').textContent='Resting at a bonfire today.';$('bonfireBtn').textContent='Undo';}
   else if(canRest){$('bonfireText').textContent=R.bonfires+' bonfire'+(R.bonfires===1?'':'s')+' banked.';$('bonfireBtn').textContent='Rest today';}
   if($('bonfireRow').hidden)$('bonfireConfirm').hidden=true;
-  const list=$('habitList');list.textContent='';
-  const items=editMode?state.habits.filter(h=>!h.archived||h.archived>today):act;
+  const list=$('habitList'),dl=$('doneList');list.textContent='';dl.textContent='';
   $('emptyState').hidden=!!state.habits.length||!$('habitForm').hidden;
-  if(!editMode&&state.habits.length&&!act.length){
-    const li=document.createElement('li');li.className='day-sum';li.textContent='No habits were active on this day.';list.appendChild(li);
-  }
+  $('questLog').hidden=!state.habits.length;
   const locked=!ready||!canEditDate(d);
-  for(const h of items){
-    const v=day[h.id]||0, f=fracOf(h,v);
-    const li=document.createElement('li');li.className='habit'+(f>=1?' done':'');
-    const btn=document.createElement('button');btn.type='button';btn.className='check';
-    btn.style.setProperty('--p',Math.round(f*100));btn.setAttribute('aria-pressed',f>=1?'true':'false');
-    btn.setAttribute('aria-label',(f>=1?'Mark not done: ':'Mark done: ')+h.name);btn.innerHTML=CHECK_SVG;
-    btn.disabled=locked||editMode;
-    btn.addEventListener('click',()=>setVal(h,d,f>=1?0:(h.kind==='count'?h.target:1)));
-    const main=document.createElement('div');main.className='h-main';
-    const nm=document.createElement('div');nm.className='h-name';nm.textContent=h.name;
-    const meta=document.createElement('div');meta.className='h-meta';
-    const s=R.streak[h.id]||0;
-    const st=document.createElement('span');st.className='streak'+(s?'':' cold');st.innerHTML=FLAME_SVG;st.appendChild(document.createTextNode(s));
-    st.title=s+'-day streak';
-    const info=document.createElement('span');
-    const m=multFor(s);
-    info.textContent=DNAME[h.diff]+' · '+BASE[h.diff]+' XP'+(m>1?' ×'+m.toFixed(1):'')+(h.kind==='count'?' · '+v+'/'+h.target+(h.unit?' '+h.unit:''):'');
-    meta.append(st,info);
-    const m2=R.miss[h.id]||0;
-    if(m2&&d===today&&!R.restDays[today]){const w=document.createElement('span');w.className='esc';w.textContent='Missed '+m2+(m2===1?' day':' days')+' \u00b7 next miss \u00d7'+escFor(m2+1).toFixed(1)+' damage';meta.appendChild(w)}
-    if(cursedHabit(h.id)&&d===today){const w=document.createElement('span');w.className='esc';w.textContent='Marked \u00b7 \u00d72 damage if missed';meta.appendChild(w)}
-    main.append(nm);
-    if(h.when||h.where){const pl=document.createElement('div');pl.className='h-plan';pl.textContent=[h.when,h.where].filter(Boolean).join(' \u00b7 ');main.appendChild(pl)}
-    main.append(meta);
-    li.append(btn,main);
-    if(editMode){
-      const eb=document.createElement('button');eb.type='button';eb.className='edit-btn';eb.textContent='Edit';
-      eb.setAttribute('aria-label','Edit '+h.name);eb.addEventListener('click',()=>openForm(h));li.appendChild(eb);
-    }else if(h.kind==='count'){
-      const step=h.target>=20?5:1;
-      const sp=document.createElement('div');sp.className='stepper';
-      const minus=document.createElement('button');minus.type='button';minus.textContent='−';minus.setAttribute('aria-label','Decrease '+h.name);
-      const inp=document.createElement('input');inp.type='number';inp.inputMode='numeric';inp.min='0';inp.max='9999';inp.value=v;inp.id='v-'+h.id;
-      inp.setAttribute('aria-label',h.name+' amount'+(h.unit?' in '+h.unit:''));
-      const plus=document.createElement('button');plus.type='button';plus.textContent='+';plus.setAttribute('aria-label','Increase '+h.name);
-      minus.disabled=plus.disabled=inp.disabled=locked;
-      minus.addEventListener('click',()=>setVal(h,d,v-step));
-      plus.addEventListener('click',()=>setVal(h,d,v+step));
-      inp.addEventListener('change',()=>setVal(h,d,parseFloat(inp.value)));
-      sp.append(minus,inp,plus);li.appendChild(sp);
+  const items=editMode?state.habits.filter(h=>!h.archived||h.archived>today):act;
+  const open=items.filter(h=>editMode||fracOf(h,day[h.id])<1), fin=editMode?[]:items.filter(h=>fracOf(h,day[h.id])>=1);
+  $('qlCount').textContent=editMode?'EDITING':fin.length+'/'+items.length;
+  if(!editMode&&!act.length&&state.habits.length){const li=document.createElement('li');li.className='ql-empty';li.textContent='NO QUESTS ON THIS DAY';list.appendChild(li)}
+  else if(!editMode&&!open.length&&fin.length){const li=document.createElement('li');li.className='ql-empty';li.textContent='ALL QUESTS COMPLETE';list.appendChild(li)}
+  const mk=(h,isDone)=>{
+    const v=day[h.id]||0,f=fracOf(h,v),li=document.createElement('li');
+    if(isDone)li.className='done';
+    const isOpen=!editMode&&openQuests.has(h.id);if(isOpen)li.classList.add('open');
+    const row=document.createElement('div');row.className='ql-row';
+    const box=document.createElement('button');box.type='button';box.className='ql-box';
+    box.setAttribute('aria-pressed',f>=1?'true':'false');box.setAttribute('aria-label',(f>=1?'Mark not done: ':'Mark done: ')+h.name);
+    const bi=document.createElement('i');bi.textContent=f>=1?'✓':'';box.appendChild(bi);
+    box.disabled=locked||editMode;
+    box.addEventListener('click',()=>setVal(h,d,f>=1?0:(h.kind==='count'?h.target:1)));
+    const nm=document.createElement('button');nm.type='button';nm.className='ql-name';nm.textContent=h.name;
+    nm.setAttribute('aria-expanded',isOpen?'true':'false');
+    nm.addEventListener('click',()=>{if(editMode){openForm(h);return}if(openQuests.has(h.id))openQuests.delete(h.id);else openQuests.add(h.id);renderDay()});
+    row.append(box,nm);
+    const missRun=R.miss[h.id]||0, live=d===today&&!R.restDays[today];
+    if(editMode){const e=document.createElement('button');e.type='button';e.className='ql-edit';e.textContent='EDIT';e.setAttribute('aria-label','Edit '+h.name);e.addEventListener('click',()=>openForm(h));row.appendChild(e)}
+    else{
+      const val=document.createElement('span');val.className='ql-v';
+      const hx=(R.hXP[d]||{})[h.id]||0;
+      if(isDone)val.textContent='+'+hx;
+      else{
+        const base=h.kind==='count'?v+'/'+h.target:'+'+Math.round(BASE[h.diff]*multFor(R.streak[h.id]||0));
+        if(live&&missRun){val.textContent=base+' ×'+escFor(missRun+1).toFixed(1);val.classList.add('bad')}
+        else val.textContent=base;
+      }
+      row.appendChild(val);
     }
-    list.appendChild(li);
-  }
+    li.appendChild(row);
+    if(isOpen){
+      const x=document.createElement('div');x.className='ql-x';
+      const m=document.createElement('div');m.className='ql-meter';const on=Math.round(f*20);for(let i=0;i<20;i++){const c=document.createElement('i');if(i<on)c.className='on';m.appendChild(c)}
+      x.appendChild(m);
+      const kv=document.createElement('div');kv.className='ql-kv';
+      const add=(k,val,cls)=>{const sp=document.createElement('span');sp.textContent=k+' ';const b=document.createElement('b');b.textContent=val;if(cls)b.className=cls;sp.appendChild(b);kv.appendChild(sp)};
+      add('STREAK',R.streak[h.id]||0);add('BEST',R.best[h.id]||0);add('MISSED',R.missTotal[h.id]||0,(R.missTotal[h.id]||0)?'bad':'');
+      const dmg=Math.round(DMG[h.diff]*escFor(missRun+1)*(cursedHabit(h.id)?2:1));
+      const rw=document.createElement('span');const g=document.createElement('b');g.className='g';g.textContent='+'+Math.round(BASE[h.diff]*multFor((R.streak[h.id]||0)+(f>=1?0:1)));
+      const sl=document.createTextNode(' / ');const r=document.createElement('b');r.className='bad';r.textContent='−'+dmg;rw.append(g,sl,r);kv.appendChild(rw);
+      if(cursedHabit(h.id)&&d===today){const sp=document.createElement('span');sp.className='bad';sp.textContent='MARKED ×2';kv.appendChild(sp)}
+      x.appendChild(kv);
+      if(h.kind==='count'){
+        const step=h.target>=20?5:1;const st=document.createElement('div');st.className='ql-step';
+        const mi=document.createElement('button');mi.type='button';mi.textContent='−'+step;mi.setAttribute('aria-label','Decrease '+h.name);
+        const pl=document.createElement('button');pl.type='button';pl.textContent='+'+step;pl.setAttribute('aria-label','Increase '+h.name);
+        mi.disabled=pl.disabled=locked;
+        mi.addEventListener('click',()=>setVal(h,d,v-step));pl.addEventListener('click',()=>setVal(h,d,v+step));
+        const lab=document.createElement('span');lab.className='ql-plan';lab.textContent=v+'/'+h.target+(h.unit?' '+h.unit:'');
+        st.append(mi,pl,lab);x.appendChild(st);
+      }
+      if(h.when||h.where){const pl=document.createElement('div');pl.className='ql-plan';pl.textContent=[h.when,h.where].filter(Boolean).join(' · ');x.appendChild(pl)}
+      li.appendChild(x);
+    }
+    return li;
+  };
+  for(const h of open)list.appendChild(mk(h,false));
+  for(const h of fin)dl.appendChild(mk(h,true));
+  const fx=fin.reduce((a,h)=>a+((R.hXP[d]||{})[h.id]||0),0);
+  $('qlFold').hidden=!fin.length;
+  $('qlFoldL').textContent=(showDone?'▾':'▸')+' COMPLETED ('+fin.length+')';
+  $('qlFoldXP').textContent='+'+fx+' XP';
+  $('qlFold').setAttribute('aria-expanded',showDone?'true':'false');
+  dl.hidden=!showDone||!fin.length;
   $('editToggle').textContent=editMode?'Done':'Edit';
   $('editToggle').hidden=!state.habits.length;
   $('addBtn').disabled=!ready;$('editToggle').disabled=!ready;
@@ -1326,6 +1387,7 @@ function showView(v){
   $('scroller').scrollTo(0,0);
 }
 $('tabHistory').addEventListener('click',()=>showView('history'));
+$('qlFold').addEventListener('click',()=>{showDone=!showDone;renderDay()});
 document.querySelectorAll('.pb-tabs button').forEach(b=>b.addEventListener('click',()=>setPbTab(b.dataset.t)));
 $('pbLogMore').addEventListener('click',()=>{showView('history');setTimeout(()=>{const el=$('logH');if(el)el.scrollIntoView({block:'start'})},30)});
 setPbTab(pbTab);
