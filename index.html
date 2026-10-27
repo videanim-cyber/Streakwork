@@ -366,6 +366,18 @@ li.done .ql-name{color:var(--a55)}
 .ql .g{color:var(--xp)}
 .ql-empty{padding:10px;font-size:17px;color:var(--a55)}
 
+.mbs{display:grid;grid-template-columns:96px 1fr;gap:12px;min-height:150px}
+.mbs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.mbs-list button{width:100%;display:flex;justify-content:space-between;align-items:center;border:none;background:none;color:var(--accent);font-family:var(--f-display);font-size:21px;padding:6px 8px;text-align:left}
+.mbs-list button[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.mbs-lv{font-size:22px;font-variant-numeric:tabular-nums}
+.mbs-det{display:flex;flex-direction:column;gap:6px;min-width:0;border-left:1px solid var(--a50);padding-left:12px}
+.mbs-h{font-size:24px;line-height:1}
+.mbs-s{font-size:15px;color:var(--a50);letter-spacing:.03em}
+.mbs-q{margin:2px 0 0}
+.mbs-q blockquote{margin:0;font-family:var(--f-body);font-size:13.5px;line-height:1.4;color:var(--ink);font-style:italic}
+.mbs-q figcaption{margin-top:3px;font-size:15px;color:var(--a50);letter-spacing:.03em}
+.mbs-t{font-size:15px;letter-spacing:.03em;overflow-wrap:anywhere}
 .pb-attrs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
 .pa-t{display:flex;justify-content:space-between;font-size:16px;letter-spacing:.03em}
 .pa-t span:last-child{color:var(--ink)}
@@ -411,6 +423,7 @@ li.done .ql-name{color:var(--a55)}
   <header class="pb" aria-label="Character status">
     <div class="pb-tabs" role="tablist">
       <button type="button" role="tab" id="pbTabStat" data-t="stat">STAT</button>
+      <button type="button" role="tab" id="pbTabMbs" data-t="mbs">M.B.S.</button>
       <button type="button" role="tab" id="pbTabRank" data-t="rank">RANK</button>
       <button type="button" role="tab" id="pbTabLog" data-t="log">LOG</button>
     </div>
@@ -421,8 +434,13 @@ li.done .ql-name{color:var(--a55)}
         <span>XP</span><div class="meter" id="segXp" role="progressbar" aria-label="Experience"></div><span class="num" id="xpText"></span>
         <span>RK</span><div class="meter" id="segRk" role="progressbar" aria-label="Focus hours a day"></div><span class="num" id="rankVal"></span>
       </div>
-      <div class="pb-attrs" id="attrRow"></div>
       <div class="pb-foot" id="hudStatus"></div>
+    </div>
+    <div class="pb-panel" id="pbMbs" role="tabpanel" aria-labelledby="pbTabMbs" hidden>
+      <div class="mbs">
+        <ol class="mbs-list" id="mbsList"></ol>
+        <div class="mbs-det" id="mbsDet"></div>
+      </div>
     </div>
     <div class="pb-panel" id="pbRank" role="tabpanel" aria-labelledby="pbTabRank" hidden>
       <div class="pb-head" id="rkName"></div>
@@ -976,12 +994,38 @@ function rankNow(){const FB=focusByDay(),m=weekMinBefore(FB,today);return{min:m,
 let pbTab=(()=>{try{return localStorage.getItem('streakwork:pbTab')||'stat'}catch(e){return 'stat'}})();
 function setPbTab(t){
   pbTab=t;try{localStorage.setItem('streakwork:pbTab',t)}catch(e){}
-  for(const [k,id,tab] of [['stat','pbStat','pbTabStat'],['rank','pbRank','pbTabRank'],['log','pbLog','pbTabLog']]){$(id).hidden=k!==t;$(tab).setAttribute('aria-selected',k===t?'true':'false')}
+  for(const [k,id,tab] of [['stat','pbStat','pbTabStat'],['mbs','pbMbs','pbTabMbs'],['rank','pbRank','pbTabRank'],['log','pbLog','pbTabLog']]){$(id).hidden=k!==t;$(tab).setAttribute('aria-selected',k===t?'true':'false')}
 }
 function segs(el,n,parts){ // parts: [[count,cls],...] filled from the left
   el.textContent='';let i=0;
   for(const [c,cls] of parts){for(let k=0;k<c&&i<n;k++,i++){const x=document.createElement('i');if(cls)x.className=cls;el.appendChild(x)}}
   while(i<n){el.appendChild(document.createElement('i'));i++}
+}
+const CAT_QUOTE={
+  mind:['To be an artist means never to avert one\u2019s eyes.','Akira Kurosawa'],
+  body:['Maximum efficiency, mutual welfare and benefit.','Kan\u014d Jigor\u014d'],
+  soul:['Work is love made visible.','Kahlil Gibran']
+};
+let mbsSel=(()=>{try{return localStorage.getItem('streakwork:mbs')||'mind'}catch(e){return 'mind'}})();
+function renderMbs(){
+  const ol=$('mbsList');ol.textContent='';
+  for(const c of CATS){
+    const a=attrInfo(R.attrXP[c]);const li=document.createElement('li');
+    const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',c===mbsSel?'true':'false');
+    const n=document.createElement('span');n.textContent=CAT_NAME[c];const v=document.createElement('span');v.className='mbs-lv';v.textContent=a.L;
+    b.append(n,v);b.addEventListener('click',()=>{mbsSel=c;try{localStorage.setItem('streakwork:mbs',c)}catch(e){}renderMbs()});
+    li.appendChild(b);ol.appendChild(li);
+  }
+  const c=mbsSel,a=attrInfo(R.attrXP[c]),det=$('mbsDet');det.textContent='';
+  const h=document.createElement('div');h.className='mbs-h';h.textContent=CAT_NAME[c].toUpperCase()+'  LV '+a.L;
+  const m=document.createElement('div');m.className='meter';const on=Math.floor(a.into/a.span*20);for(let i=0;i<20;i++){const x=document.createElement('i');if(i<on)x.className='on';m.appendChild(x)}
+  const xp=document.createElement('div');xp.className='mbs-s';xp.textContent=a.into+'/'+a.span+' XP TO LV '+(a.L+1);
+  const ds=document.createElement('figure');ds.className='mbs-q';const bq=document.createElement('blockquote');bq.textContent='\u201c'+CAT_QUOTE[c][0]+'\u201d';const fc=document.createElement('figcaption');fc.textContent='\u2014 '+CAT_QUOTE[c][1];ds.append(bq,fc);
+  const tasks=state.habits.filter(t=>!t.archived||t.archived>today).filter(t=>catsOf(t).includes(c));
+  const tod=tasks.filter(t=>isActive(t,today)),dn=tod.filter(t=>fracOf(t,(state.log[today]||{})[t.id])>=1).length;
+  const td=document.createElement('div');td.className='mbs-s';td.textContent='TODAY '+dn+'/'+tod.length+' \u00b7 '+tasks.length+' TASK'+(tasks.length===1?'':'S');
+  const tl=document.createElement('div');tl.className='mbs-t';tl.textContent=tasks.length?tasks.map(t=>t.name).join(' \u00b7 '):'No tasks in '+CAT_NAME[c]+' yet. Add one from Edit.';
+  det.append(h,m,xp,td,ds,tl);
 }
 function renderHud(){
   const li=levelInfo(R.xp), k=rankNow(), N=20;
@@ -1000,11 +1044,7 @@ function renderHud(){
   chip('BONFIRES',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
   if(R.hollow)chip('HOLLOW',R.hollow,'bad');
   const ac=activeCurses();if(ac.length)chip('CURSED',ac.length,'bad');
-  {const box=$('attrRow');box.textContent='';
-   for(const c of CATS){const a=attrInfo(R.attrXP[c]);const el=document.createElement('div');el.className='pb-attr';
-     const t=document.createElement('div');t.className='pa-t';const n=document.createElement('span');n.textContent=CAT_NAME[c].toUpperCase();const l=document.createElement('span');l.textContent='LV '+a.L;t.append(n,l);
-     const bar=document.createElement('div');bar.className='pa-bar';const fi=document.createElement('i');fi.style.width=(a.into/a.span*100)+'%';bar.appendChild(fi);
-     el.append(t,bar);el.setAttribute('aria-label',CAT_NAME[c]+' level '+a.L+', '+a.into+' of '+a.span+' XP');box.appendChild(el)}}
+  renderMbs();
   renderCurses(ac);
   // RANK
   $('rkName').textContent=rankName(k.rank);$('rkName').classList.toggle('cold',!k.rank);
