@@ -358,10 +358,27 @@ li.done .ql-name{color:var(--a55)}
 .ql-step button{border:2px solid var(--accent);background:none;color:var(--accent);font-family:var(--f-display);font-size:18px;min-width:52px;height:34px}
 .ql-step button:disabled{opacity:.4}
 .ql-plan{font-size:16px;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}
+.ql-ord{display:flex;align-items:center;gap:2px;padding-right:4px}
+.ql-mv{width:36px;height:40px;border:none;background:none;color:var(--accent);font-size:15px;padding:0}
+.ql-mv:disabled{color:var(--a20)}
 .ql-edit{border:none;background:none;color:var(--accent);font-family:var(--f-display);font-size:17px;padding:0 10px;height:44px}
 .ql-fold{width:100%;display:flex;justify-content:space-between;border:none;border-top:2px solid var(--a35);background:none;color:var(--a55);font-family:var(--f-display);font-size:18px;padding:7px 10px;letter-spacing:.03em}
 .ql .g{color:var(--xp)}
 .ql-empty{padding:10px;font-size:17px;color:var(--a55)}
+
+.pb-attrs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.pa-t{display:flex;justify-content:space-between;font-size:16px;letter-spacing:.03em}
+.pa-t span:last-child{color:var(--ink)}
+.pa-bar{height:6px;background:var(--a20);margin-top:3px}
+.pa-bar i{display:block;height:100%;background:var(--accent)}
+.ql-gh{padding:5px 10px 3px;font-size:15px;letter-spacing:.12em;color:var(--a55);border-top:1px solid var(--a35)!important;background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.ql-gh.first{border-top:none!important}
+.ql-tag.blk{display:block;margin:2px 0 0}
+#questLog.editing .ql-name:after{content:none}
+.ql-tag{font-size:13px;color:var(--a55);margin-left:6px;letter-spacing:.06em}
+.cat-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cat-pick button{height:40px;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-family:var(--f-display);font-size:19px;letter-spacing:.04em}
+.cat-pick button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--ink)}
 
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:calc(-1 * var(--gap,0px));z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
@@ -404,6 +421,7 @@ li.done .ql-name{color:var(--a55)}
         <span>XP</span><div class="meter" id="segXp" role="progressbar" aria-label="Experience"></div><span class="num" id="xpText"></span>
         <span>RK</span><div class="meter" id="segRk" role="progressbar" aria-label="Focus hours a day"></div><span class="num" id="rankVal"></span>
       </div>
+      <div class="pb-attrs" id="attrRow"></div>
       <div class="pb-foot" id="hudStatus"></div>
     </div>
     <div class="pb-panel" id="pbRank" role="tabpanel" aria-labelledby="pbTabRank" hidden>
@@ -459,6 +477,9 @@ li.done .ql-name{color:var(--a55)}
         <div class="field"><label for="fWhere">Where</label><input id="fWhere" maxlength="30" autocomplete="off" placeholder="At my desk"></div>
       </div>
       <p class="hint">Naming a specific time and place makes you much more likely to follow through. Optional.</p>
+      <fieldset class="sched" id="catSet"><legend>Category</legend>
+        <div class="cat-pick" id="catPick"></div>
+      </fieldset>
       <fieldset class="sched" id="schedSet"><legend>Repeats</legend>
         <div class="sched-days" id="schedDays"></div>
         <div class="sched-pre"><button type="button" class="link" data-pre="all">Every day</button><button type="button" class="link" data-pre="wk">Weekdays</button><button type="button" class="link" data-pre="we">Weekends</button></div>
@@ -510,6 +531,8 @@ li.done .ql-name{color:var(--a55)}
       <li>Focus sessions earn half an XP per minute. Abandoning one costs 5 HP.</li>
       <li>Rank comes from your average focus hours a day over the last 7 full days: the six ranks start at 1, 2, 4, 6, 8 and 10 hours a day. Under 1 hour you are Ash. Each rank’s name stays hidden until you first reach it. The stages follow British Columbia’s 1–6 wildfire rank scale. It updates at midnight and drops as fast as it rises.</li>
       <li>Each task can repeat on chosen days of the week. On days it isn’t scheduled it can’t be missed, and its streak carries over to the next scheduled day.</li>
+      <li>Tasks can belong to Mind, Body and/or Soul. XP from a task also feeds each of its attributes, which level up on their own and are never lost. Finishing a task in all three on one day counts as a balanced day.</li>
+      <li>To reorder tasks, tap Edit and use the arrows. Tasks move within their category.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
     </ul>
   </details>
@@ -720,7 +743,7 @@ function compute(){
   const H=state.habits, rest=state.rest||{};
   const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
     streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
-    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],rank:0,maxRank:0,maxAvg:0,hXP:{},missTotal:{},curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
+    daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],rank:0,maxRank:0,maxAvg:0,hXP:{},missTotal:{},attrXP:{mind:0,body:0,soul:0},balanced:0,balRun:0,bestBalRun:0,curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
   H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
@@ -735,17 +758,18 @@ function compute(){
     const cur={};for(const c of r.curses)if(c.start<=d&&d<=c.end){cur[c.id]=true;if(c.id==='marked')(cur.marks||(cur.marks={}))[c.habit]=true}
     if(Object.keys(cur).length)r.cursedDays++;
     const ended=d<today;
-    const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0,done=0;
+    const day=state.log[d]||{}; let sum=0,all=true,gained=0,dmg=0,done=0;const catDone={},catHas={};
+    const attrBefore={};for(const c of CATS)attrBefore[c]=attrInfo(r.attrXP[c]).L;
     r.maxActive=Math.max(r.maxActive,act.length);
     for(const h of act){
-      const v=day[h.id], f=fracOf(h,v); sum+=f;
+      const v=day[h.id], f=fracOf(h,v); sum+=f;const hc=catsOf(h);for(const c of hc){catHas[c]=1;if(f>=1)catDone[c]=1}
       if(f>=1){
         done++;r.streak[h.id]++;r.miss[h.id]=0;r.best[h.id]=Math.max(r.best[h.id],r.streak[h.id]);r.checks++;r.hp=Math.min(r.maxHp,r.hp+1);
         if(h.diff===3){r.hardDone++;r.hardBest=Math.max(r.hardBest,r.streak[h.id])}
         if(h.kind==='count'&&v>=2*h.target)r.over++;
       }
       else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;r.missTotal[h.id]=(r.missTotal[h.id]||0)+1;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)}}
-      {const hx=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);gained+=hx;(r.hXP[d]||(r.hXP[d]={}))[h.id]=Math.round(hx)}
+      {const hx=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);gained+=hx;(r.hXP[d]||(r.hXP[d]={}))[h.id]=Math.round(hx);for(const c of hc)r.attrXP[c]+=hx}
     }
     if(cur.withering)gained*=.75;
     const fs=FB[d];
@@ -756,6 +780,10 @@ function compute(){
     if(cur.brittle)dmg*=1.5;
     r.xp+=gained; r.earned+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
     r.maxDone=Math.max(r.maxDone,done); if(done)r.daysActive++;
+    {const bal=CATS.every(c=>catDone[c]), possible=CATS.every(c=>catHas[c]);
+     if(bal){r.balanced++;r.balRun++;r.bestBalRun=Math.max(r.bestBalRun,r.balRun)}
+     else if(ended&&possible&&!resting)r.balRun=0;}
+    for(const c of CATS){const L=attrInfo(r.attrXP[c]).L;if(L>attrBefore[c])r.events.push({d,t:'gold',x:CAT_NAME[c]+' reached level '+L})}
     if(all){
       r.perfect++;r.perfRun++;r.bestPerfRun=Math.max(r.bestPerfRun,r.perfRun);r.hp=Math.min(r.maxHp,r.hp+3);
       if(parse(d).getDay()===0&&lastPerfect===addDays(d,-1))r.weekends++;
@@ -806,7 +834,11 @@ function focusByDay(){const FB={};for(const x of state.sessions){const o=FB[x.d]
 function weekMinBefore(FB,d){let m=0;for(let i=1;i<=7;i++){const o=FB[addDays(d,-i)];if(o)m+=o.min}return m}
 function rankFrom(min){const h=min/7/60;let r=0;while(r<RANK_MAX&&h>=RANK_TH[r])r++;return r}
 function rankName(r){return RANK_NAMES[r]}
-const GROUPS=['Streaks','Consistency','Levels','Ranks','Volume','Grit'];
+const CATS=['mind','body','soul'], CAT_NAME={mind:'Mind',body:'Body',soul:'Soul'};
+function catsOf(h){return Array.isArray(h.cats)?CATS.filter(c=>h.cats.includes(c)):[]}
+// Attributes level on their own gentler curve: 100 XP for level 2, +25% per level after
+function attrInfo(x){let L=1,need=100;x=Math.max(0,x);while(x>=need){x-=need;L++;need=Math.round(need*1.25)}return{L:L,into:Math.floor(x),span:need}}
+const GROUPS=['Streaks','Consistency','Levels','Ranks','Balance','Volume','Grit'];
 const ACH=[
   {id:'s7',g:'Streaks',name:'One week',desc:'7-day streak on a task',f:r=>[bestStreak(r),7]},
   {id:'s14',g:'Streaks',name:'Two weeks',desc:'14-day streak on a task',f:r=>[bestStreak(r),14]},
@@ -833,6 +865,11 @@ const ACH=[
   {id:'c1000',g:'Volume',name:'Thousand',desc:'1,000 check-ins',f:r=>[r.checks,1000]},
   {id:'triple',g:'Volume',name:'Triple threat',desc:'Finish 3 tasks in one day',f:r=>[r.maxDone,3]},
   {id:'roster',g:'Volume',name:'Full roster',desc:'Track 5 tasks at the same time',f:r=>[r.maxActive,5]},
+  {id:'bal1',g:'Balance',name:'Balanced',desc:'Finish a Mind, Body and Soul task in one day',f:r=>[r.balanced,1]},
+  {id:'bal7',g:'Balance',name:'Triad',desc:'Balanced days 7 in a row',f:r=>[r.bestBalRun,7]},
+  {id:'bal30',g:'Balance',name:'Harmony',desc:'30 balanced days in total',f:r=>[r.balanced,30]},
+  {id:'attr5',g:'Balance',name:'Well-rounded',desc:'Get Mind, Body and Soul to level 5',f:r=>[Math.min(...CATS.map(c=>attrInfo(r.attrXP[c]).L)),5]},
+  {id:'attr10',g:'Balance',name:'Devoted',desc:'Get any one attribute to level 10',f:r=>[Math.max(...CATS.map(c=>attrInfo(r.attrXP[c]).L)),10]},
   {id:'over',g:'Volume',name:'Overachiever',desc:'Log double the target on an amount task',f:r=>[r.over,1]},
   {id:'rk1',g:'Ranks',name:'Ground Fire',desc:'Average 1+ focus hour a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,1]},
   {id:'rk2',g:'Ranks',name:'Creeping Fire',desc:'Average 2+ focus hours a day for a week',f:r=>[Math.floor(r.maxAvg*10)/10,2]},
@@ -913,7 +950,7 @@ function setVal(h,d,v){
 }
 function addHabit(o){
   state.habits.push({id:'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:o.name,kind:o.kind,
-    target:o.kind==='count'?o.target:1,unit:o.kind==='count'?(o.unit||''):'',diff:o.diff,when:o.when||'',where:o.where||'',days:o.days||null,created:today,archived:null});
+    target:o.kind==='count'?o.target:1,unit:o.kind==='count'?(o.unit||''):'',diff:o.diff,when:o.when||'',where:o.where||'',days:o.days||null,cats:o.cats||[],created:today,archived:null});
   commit();
 }
 
@@ -963,6 +1000,11 @@ function renderHud(){
   chip('BONFIRES',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
   if(R.hollow)chip('HOLLOW',R.hollow,'bad');
   const ac=activeCurses();if(ac.length)chip('CURSED',ac.length,'bad');
+  {const box=$('attrRow');box.textContent='';
+   for(const c of CATS){const a=attrInfo(R.attrXP[c]);const el=document.createElement('div');el.className='pb-attr';
+     const t=document.createElement('div');t.className='pa-t';const n=document.createElement('span');n.textContent=CAT_NAME[c].toUpperCase();const l=document.createElement('span');l.textContent='LV '+a.L;t.append(n,l);
+     const bar=document.createElement('div');bar.className='pa-bar';const fi=document.createElement('i');fi.style.width=(a.into/a.span*100)+'%';bar.appendChild(fi);
+     el.append(t,bar);el.setAttribute('aria-label',CAT_NAME[c]+' level '+a.L+', '+a.into+' of '+a.span+' XP');box.appendChild(el)}}
   renderCurses(ac);
   // RANK
   $('rkName').textContent=rankName(k.rank);$('rkName').classList.toggle('cold',!k.rank);
@@ -1010,7 +1052,18 @@ function renderHud(){
 }
 function activeOn(d){return state.habits.filter(h=>isActive(h,d))}
 function canEditDate(d){return d<=today&&d>addDays(today,-EDIT_DAYS)}
-let openQuests=new Set(), showDone=false, formDays=[0,1,2,3,4,5,6];
+// Swap two tasks in the stored order (the list renders in this order within each category)
+function moveTask(a,b){
+  if(!b)return;const H=state.habits,i=H.indexOf(a),j=H.indexOf(b);if(i<0||j<0)return;
+  H[i]=b;H[j]=a;state.updated=Date.now();cache();render();
+}
+let openQuests=new Set(), showDone=false, formDays=[0,1,2,3,4,5,6], formCats=[];
+function renderCats(){
+  const box=$('catPick');box.textContent='';
+  for(const c of CATS){const b=document.createElement('button');b.type='button';b.textContent=CAT_NAME[c];
+    b.setAttribute('aria-pressed',formCats.includes(c)?'true':'false');
+    b.addEventListener('click',()=>{formCats=formCats.includes(c)?formCats.filter(x=>x!==c):formCats.concat(c);renderCats()});box.appendChild(b)}
+}
 function renderSched(){
   const box=$('schedDays');box.textContent='';
   for(const i of [1,2,3,4,5,6,0]){
@@ -1040,6 +1093,7 @@ function renderDay(){
   const locked=!ready||!canEditDate(d);
   const items=editMode?state.habits.filter(h=>!h.archived||h.archived>today):act;
   const open=items.filter(h=>editMode||fracOf(h,day[h.id])<1), fin=editMode?[]:items.filter(h=>fracOf(h,day[h.id])>=1);
+  $('questLog').classList.toggle('editing',editMode);
   $('qlCount').textContent=editMode?'EDITING':fin.length+'/'+items.length;
   if(!editMode&&!act.length&&state.habits.length){const li=document.createElement('li');li.className='ql-empty';li.textContent=d===today?'NOTHING SCHEDULED TODAY':'NOTHING SCHEDULED THIS DAY';list.appendChild(li)}
   else if(!editMode&&!open.length&&fin.length){const li=document.createElement('li');li.className='ql-empty';li.textContent='ALL TASKS COMPLETE';list.appendChild(li)}
@@ -1054,11 +1108,20 @@ function renderDay(){
     box.disabled=locked||editMode;
     box.addEventListener('click',()=>setVal(h,d,f>=1?0:(h.kind==='count'?h.target:1)));
     const nm=document.createElement('button');nm.type='button';nm.className='ql-name';nm.textContent=h.name;
+    {const extra=catsOf(h).slice(1);if(editMode){const tg=document.createElement('span');tg.className='ql-tag blk';tg.textContent=[schedLabel(h.days).toUpperCase()].concat(extra.map(c=>'+'+CAT_NAME[c].toUpperCase())).join(' \u00b7 ');nm.appendChild(tg)}else if(extra.length){const tg=document.createElement('span');tg.className='ql-tag';tg.textContent=extra.map(c=>'+'+CAT_NAME[c].toUpperCase()).join(' ');nm.appendChild(tg)}}
     nm.setAttribute('aria-expanded',isOpen?'true':'false');
     nm.addEventListener('click',()=>{if(editMode){openForm(h);return}if(openQuests.has(h.id))openQuests.delete(h.id);else openQuests.add(h.id);renderDay()});
     row.append(box,nm);
     const missRun=R.miss[h.id]||0, live=d===today&&!R.restDays[today];
-    if(editMode){const e=document.createElement('button');e.type='button';e.className='ql-edit';e.textContent=schedLabel(h.days).toUpperCase()+' · EDIT';e.setAttribute('aria-label','Edit '+h.name);e.addEventListener('click',()=>openForm(h));row.appendChild(e)}
+    if(editMode){
+      const wrap=document.createElement('div');wrap.className='ql-ord';
+      const grp=open.filter(x=>(catsOf(x)[0]||'none')===(catsOf(h)[0]||'none')),gi=grp.indexOf(h);
+      const mv=(dir,lab)=>{const b=document.createElement('button');b.type='button';b.className='ql-mv';b.textContent=dir<0?'\u25B2':'\u25BC';b.setAttribute('aria-label','Move '+h.name+' '+lab);
+        const other=grp[gi+dir];b.disabled=!other;b.addEventListener('click',()=>moveTask(h,other));return b};
+      wrap.append(mv(-1,'up'),mv(1,'down'));
+      const e=document.createElement('button');e.type='button';e.className='ql-edit';e.textContent='EDIT';e.setAttribute('aria-label','Edit '+h.name);e.addEventListener('click',()=>openForm(h));
+      wrap.appendChild(e);row.appendChild(wrap);
+    }
     else{
       const val=document.createElement('span');val.className='ql-v';
       const hx=(R.hXP[d]||{})[h.id]||0;
@@ -1097,7 +1160,14 @@ function renderDay(){
     }
     return li;
   };
-  for(const h of open)list.appendChild(mk(h,false));
+  {const groups=[...CATS,'none'];let firstGroup=true;
+   for(const g of groups){
+     const inG=open.filter(h=>(catsOf(h)[0]||'none')===g);if(!inG.length)continue;
+     const hasCats=open.some(h=>catsOf(h).length);
+     if(hasCats){const gh=document.createElement('li');gh.className='ql-gh'+(firstGroup?' first':'');gh.textContent=g==='none'?'UNSORTED':CAT_NAME[g].toUpperCase();list.appendChild(gh)}
+     firstGroup=false;
+     for(const h of inG)list.appendChild(mk(h,false));
+   }}
   for(const h of fin)dl.appendChild(mk(h,true));
   const fx=fin.reduce((a,h)=>a+((R.hXP[d]||{})[h.id]||0),0);
   $('qlFold').hidden=!fin.length;
@@ -1337,6 +1407,7 @@ function openForm(h){
   $('fName').value=h?h.name:'';
   $('fWhen').value=h?h.when||'':'';$('fWhere').value=h?h.where||'':'';
   formDays=h&&Array.isArray(h.days)?h.days.slice():[0,1,2,3,4,5,6];renderSched();
+  formCats=h?catsOf(h):[];renderCats();
   $(h&&h.kind==='count'?'kCount':'kCheck').checked=true;
   $('kCheck').disabled=$('kCount').disabled=!!h;
   $('fTarget').value=h&&h.kind==='count'?h.target:30;$('fUnit').value=h?h.unit||'':'';
@@ -1364,10 +1435,10 @@ $('habitForm').addEventListener('submit',e=>{
   const diff=Number(document.querySelector('input[name="diff"]:checked').value);
   if(editingId){
     const h=state.habits.find(x=>x.id===editingId);
-    if(h){h.name=name;h.diff=diff;h.when=when;h.where=where;h.days=days;if(h.kind==='count'){h.target=target;h.unit=unit}}
+    if(h){h.name=name;h.diff=diff;h.when=when;h.where=where;h.days=days;h.cats=formCats.slice();if(h.kind==='count'){h.target=target;h.unit=unit}}
     $('habitForm').hidden=true;editingId=null;commit();
   }else{
-    $('habitForm').hidden=true;addHabit({name,kind,target,unit,diff,when,where,days});
+    $('habitForm').hidden=true;addHabit({name,kind,target,unit,diff,when,where,days,cats:formCats.slice()});
   }
 });
 $('archiveBtn').addEventListener('click',()=>{
