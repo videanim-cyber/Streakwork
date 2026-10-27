@@ -332,7 +332,10 @@ h3{font-size:16px}
 
 /* Task log */
 .ql{border:2px solid var(--accent);color:var(--accent);font-family:var(--f-display);--a12:color-mix(in srgb,var(--accent) 12%,transparent);--a20:color-mix(in srgb,var(--accent) 20%,transparent);--a35:color-mix(in srgb,var(--accent) 35%,transparent);--a55:color-mix(in srgb,var(--accent) 55%,transparent)}
-.ql-hd{padding:4px 10px;background:var(--accent);color:var(--bg);font-size:19px;display:flex;justify-content:space-between;letter-spacing:.03em}
+.ql-hd{padding:4px 10px;background:var(--accent);color:var(--bg);font-size:19px;display:flex;justify-content:space-between;align-items:center;gap:10px;letter-spacing:.03em}
+.ql-dmg{margin-left:auto;background:var(--bg);color:var(--hp);padding:0 6px;font-size:17px;line-height:1.25}
+.ql-dmg.fatal{background:var(--hp);color:var(--bg)}
+.ql-dmg.safe{color:var(--accent)}
 .ql-list{list-style:none;margin:0;padding:0}
 .ql-list>li{border-top:1px solid var(--a20)}
 .ql-list>li:first-child{border-top:none}
@@ -473,7 +476,7 @@ li.done .ql-name{color:var(--a55)}
       <div class="form-actions"><button type="button" class="btn primary" id="bonfireYes">Rest today</button><button type="button" class="btn ghost" id="bonfireNo">Keep going</button></div>
     </div>
     <div class="ql" id="questLog">
-      <div class="ql-hd"><span>TASKS</span><span id="qlCount"></span></div>
+      <div class="ql-hd"><span>TASKS</span><span class="ql-dmg" id="qlDmg" hidden></span><span id="qlCount"></span></div>
       <ul class="ql-list" id="habitList"></ul>
       <button type="button" class="ql-fold" id="qlFold" aria-expanded="false"><span id="qlFoldL"></span><span class="g" id="qlFoldXP"></span></button>
       <ul class="ql-list ql-done" id="doneList" hidden></ul>
@@ -1096,6 +1099,16 @@ function moveTask(a,b){
   if(!b)return;const H=state.habits,i=H.indexOf(a),j=H.indexOf(b);if(i<0||j<0)return;
   H[i]=b;H[j]=a;state.updated=Date.now();cache();render();
 }
+// Damage that today's unfinished tasks would deal at midnight, with escalation, curses and partial progress
+function projectedDmg(){
+  if(R.restDays[today])return{dmg:0,rest:true};
+  const day=state.log[today]||{},ac=activeCurses();let dmg=0;
+  for(const h of activeOn(today)){const f=fracOf(h,day[h.id]);if(f>=1)continue;
+    dmg+=DMG[h.diff]*(1-f)*escFor((R.miss[h.id]||0)+1)*(cursedHabit(h.id)?2:1)}
+  const q=(focusByDay()[today]||{}).quit||0;dmg+=QUIT_DMG*q;
+  if(ac.some(c=>c.id==='brittle'))dmg*=1.5;
+  return{dmg:Math.round(dmg),rest:false};
+}
 let openQuests=new Set(), showDone=false, formDays=[0,1,2,3,4,5,6], formCats=[];
 function renderCats(){
   const box=$('catPick');box.textContent='';
@@ -1134,6 +1147,10 @@ function renderDay(){
   const open=items.filter(h=>editMode||fracOf(h,day[h.id])<1), fin=editMode?[]:items.filter(h=>fracOf(h,day[h.id])>=1);
   $('questLog').classList.toggle('editing',editMode);
   $('qlCount').textContent=editMode?'EDITING':fin.length+'/'+items.length;
+  {const el=$('qlDmg'),show=!editMode&&d===today&&act.length>0;el.hidden=!show;
+   if(show){const p=projectedDmg();el.className='ql-dmg'+(p.rest?' safe':p.dmg>=R.hp?' fatal':p.dmg?'':' safe');
+     el.textContent=p.rest?'RESTING':p.dmg>=R.hp?'\u2212'+p.dmg+' HP \u00b7 FATAL':p.dmg?'\u2212'+p.dmg+' HP TONIGHT':'NO DAMAGE';
+     el.setAttribute('aria-label',p.rest?'Resting today, no damage':p.dmg?'You will take '+p.dmg+' damage at midnight if nothing else is done'+(p.dmg>=R.hp?', which will knock you out':''):'No damage pending');}}
   if(!editMode&&!act.length&&state.habits.length){const li=document.createElement('li');li.className='ql-empty';li.textContent=d===today?'NOTHING SCHEDULED TODAY':'NOTHING SCHEDULED THIS DAY';list.appendChild(li)}
   else if(!editMode&&!open.length&&fin.length){const li=document.createElement('li');li.className='ql-empty';li.textContent='ALL TASKS COMPLETE';list.appendChild(li)}
   const mk=(h,isDone)=>{
