@@ -397,6 +397,25 @@ li.done .ql-name{color:var(--a55)}
 .focus-cats{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-family:var(--f-display);font-size:16px;color:var(--muted);letter-spacing:.06em}
 .focus-cats .cat-pick button:disabled{opacity:.7}
 
+.pb-tabs button{font-size:17px;letter-spacing:.02em}
+.pk-h{font-size:20px;line-height:1.1}
+.pk-s{font-size:14px;color:var(--a50);letter-spacing:.05em;margin-bottom:6px}
+.perks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.perks.pick{max-height:300px;overflow-y:auto;margin-bottom:8px;scrollbar-width:none}
+.perks.pick::-webkit-scrollbar{display:none}
+.pk-opt{width:100%;display:grid;grid-template-columns:1fr auto;gap:0 8px;text-align:left;border:1px solid var(--a20);background:none;color:var(--accent);font-family:var(--f-display);padding:6px 8px}
+.pk-opt[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.pk-opt[aria-pressed="true"] .pk-d,.pk-opt[aria-pressed="true"] .pk-t{color:var(--bg)}
+.pk-n{font-size:19px}
+.pk-t{font-size:14px;color:var(--a50);align-self:center}
+.pk-d{grid-column:1/-1;font-size:15px;color:var(--ink);letter-spacing:.02em}
+.pk-take{width:100%;border:none;background:var(--accent);color:var(--bg);font-family:var(--f-display);font-size:20px;padding:6px;margin-bottom:10px}
+.pk-own{border-left:3px solid var(--accent);padding:3px 8px}
+.pk-own.lost{border-left-color:var(--a20);opacity:.55}
+.pk-row{display:flex;justify-content:space-between;font-size:15px;color:var(--a50);align-items:baseline;gap:8px}
+.pk-row .pk-n{color:var(--accent)}
+.pk-none{font-size:17px;color:var(--a50)}
+
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
   padding-bottom:var(--tabPad,env(safe-area-inset-bottom,0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -430,6 +449,7 @@ li.done .ql-name{color:var(--a55)}
       <button type="button" role="tab" id="pbTabStat" data-t="stat">STAT</button>
       <button type="button" role="tab" id="pbTabMbs" data-t="mbs">M.B.S.</button>
       <button type="button" role="tab" id="pbTabRank" data-t="rank">RANK</button>
+      <button type="button" role="tab" id="pbTabPerk" data-t="perk">PERKS</button>
       <button type="button" role="tab" id="pbTabLog" data-t="log">LOG</button>
     </div>
     <div class="pb-panel" id="pbStat" role="tabpanel" aria-labelledby="pbTabStat">
@@ -453,6 +473,11 @@ li.done .ql-name{color:var(--a55)}
       <ol class="ladder" id="rkLadder"></ol>
       <div class="week" id="rkWeek" role="img"></div>
       <div class="pb-foot" id="rkNext"></div>
+    </div>
+    <div class="pb-panel" id="pbPerk" role="tabpanel" aria-labelledby="pbTabPerk" hidden>
+      <div id="perkPick"></div>
+      <ol class="perks" id="perkList"></ol>
+      <div class="pb-foot" id="perkFoot"></div>
     </div>
     <div class="pb-panel" id="pbLog" role="tabpanel" aria-labelledby="pbTabLog" hidden>
       <ol class="pblog" id="pbLogList"></ol>
@@ -557,6 +582,7 @@ li.done .ql-name{color:var(--a55)}
       <li>Each task can repeat on chosen days of the week. On days it isn’t scheduled it can’t be missed, and its streak carries over to the next scheduled day.</li>
       <li>Tasks can belong to Mind, Body and/or Soul. XP from a task also feeds each of its attributes, which level up on their own and are never lost. Finishing a task in all three on one day counts as a balanced day.</li>
       <li>To reorder tasks, tap Edit and use the arrows. Tasks move within their category.</li>
+      <li>Perks unlock at levels 4, 7, 10, 12, 14, 16, 18, 20 and every level after. Tier II perks open at level 12 and Tier III at 18. Dropping below the level a perk was taken at turns it off until you climb back.</li>
       <li>You can log or fix the last 7 days. Older days are locked.</li>
     </ul>
   </details>
@@ -705,7 +731,7 @@ li.done .ql-name{color:var(--a55)}
 const KEY='streakwork:v1';
 const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5, CURSE_DAYS=3, BODY_HP=3;
 // Max HP: 50, +3 per Body level above 1, \u22125 per hollowing
-function calcMax(r){return HPMAX+BODY_HP*(attrInfo(r.attrXP.body).L-1)-5*r.hollow}
+function calcMax(r){return HPMAX+BODY_HP*(attrInfo(r.attrXP.body).L-1)-(r.hollowCost||5)*r.hollow}
 const CURSES={
   withering:{name:'Withering',desc:'Tasks earn 25% less XP'},
   brittle:{name:'Brittle',desc:'All damage \u00d71.5'},
@@ -742,6 +768,7 @@ function normalize(){
     {id:'p2',name:'Deep work',f:50,b:10,lb:20,n:3}];
   if(!state.presets.some(p=>p.id===state.presetId))state.presetId=state.presets[0].id;
   if(!Array.isArray(state.focusCats))state.focusCats=['mind'];
+  if(!Array.isArray(state.perks))state.perks=[];
   if(state.focus&&typeof state.focus!=='object')state.focus=null;
   state.updated=state.updated||0; state.v=1;
 }
@@ -765,21 +792,54 @@ function schedLabel(days){
   return [1,2,3,4,5,6,0].filter(i=>days.includes(i)).map(i=>DOW[i]).join(' ');
 }
 function fracOf(h,v){if(!v)return 0;return h.kind==='count'?Math.min(1,v/h.target):1}
-function multFor(s){return 1+Math.min(.5,.1*Math.floor(s/7))}
-function escFor(m){return Math.min(3,1+.5*(m-1))}
+const PERKS={
+  second_wind:{t:1,name:'Second Wind',desc:'HP regeneration 2 → 3 per night'},
+  thick_skin:{t:1,name:'Thick Skin',desc:'−15% damage from missed tasks'},
+  deep_focus:{t:1,name:'Deep Focus',desc:'+25% focus XP'},
+  steady_hand:{t:1,name:'Steady Hand',desc:'Abandoning a session costs 3 HP instead of 5'},
+  scholar:{t:1,name:'Scholar',desc:'+25% Mind XP'},
+  athlete:{t:1,name:'Athlete',desc:'+25% Body XP'},
+  mystic:{t:1,name:'Mystic',desc:'+25% Soul XP'},
+  scavenger:{t:1,name:'Scavenger',desc:'Bloodstains last 2 days instead of 1'},
+  tough_hide:{t:2,name:'Tough Hide',desc:'Escalation caps at ×2 instead of ×3'},
+  iron_stomach:{t:2,name:'Iron Stomach',desc:'Partial progress blocks 1.5× its share of damage'},
+  kindling:{t:2,name:'Kindling',desc:'Bank 3 bonfires instead of 2'},
+  warding:{t:2,name:'Warding',desc:'Curses last 2 days instead of 3'},
+  taskmaster:{t:2,name:'Taskmaster',desc:'+20% XP from Hard tasks'},
+  momentum:{t:2,name:'Momentum',desc:'Full streak bonus after 3 weeks instead of 5'},
+  polymath:{t:2,name:'Polymath',desc:'Balanced days earn +10% of that day’s XP'},
+  last_stand:{t:3,name:'Last Stand',desc:'A failure leaves you at 1 HP instead. Once every 14 days'},
+  unbroken:{t:3,name:'Unbroken',desc:'Hollowing costs −3 max HP instead of −5'},
+  firekeeper:{t:3,name:'Firekeeper',desc:'Earn a bonfire every 5 clean sweeps instead of 7'},
+  light_sleeper:{t:3,name:'Light Sleeper',desc:'Recover a bloodstain with 80% of tasks done'},
+  flow_state:{t:3,name:'Flow State',desc:'4+ finished focus sessions in a day: +10% of that day’s XP'},
+  cleansed:{t:3,name:'Cleansed',desc:'A clean sweep while cursed lifts your oldest curse'}
+};
+const PERK_LVS=[4,7,10,12,14,16,18,20];for(let L=21;L<=300;L++)PERK_LVS.push(L);
+function tierFor(lv){return lv>=18?3:lv>=12?2:1}
+const TIER_NAME={1:'I',2:'II',3:'III'};
+let PK={}; // perks in effect for the day being scored (today, after compute)
+function perksOn(d,L){const o={};for(const p of state.perks)if(p.lv<=L&&p.d<=d)o[p.id]=true;return o}
+function quitDmg(){return PK.steady_hand?3:QUIT_DMG}
+function attrMul(c){return (c==='mind'&&PK.scholar)||(c==='body'&&PK.athlete)||(c==='soul'&&PK.mystic)?1.25:1}
+function multFor(s){return PK.momentum?1+Math.min(.5,(.5/3)*Math.floor(s/7)):1+Math.min(.5,.1*Math.floor(s/7))}
+function escFor(m){return Math.min(PK.tough_hide?2:3,1+.5*(m-1))}
 function compute(){
   const H=state.habits, rest=state.rest||{};
-  const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
+  PK={};
+  const r={xp:0,earned:0,hp:HPMAX,maxHp:HPMAX,hollow:0,hollowCost:5,bonfireCap:BONFIRE_MAX,lastStand:null,ko:0,lastKO:null,lastKOFrom:1,lastKOTo:1,checks:0,perfect:0,perfRun:0,bestPerfRun:0,
     streak:{},best:{},miss:{},hardDone:0,hardBest:0,comeback:false,heat:{},dayXP:{},dayDmg:{},maxLevel:1,maxDone:0,maxActive:0,over:0,
     daysActive:0,noDmgRun:0,bestNoDmg:0,weekends:0,unlocked:{},events:[],rank:0,maxRank:0,maxAvg:0,hXP:{},missTotal:{},attrXP:{mind:0,body:0,soul:0},balanced:0,balRun:0,bestBalRun:0,curses:[],cursedDays:0,focusDone:0,focusMin:0,focusQuit:0,dayFocus:{},stain:null,stainLost:null,recovered:0,recoveredXP:0,kindled:0,bonfires:0,restDays:{}};
   H.forEach(h=>{r.streak[h.id]=0;r.best[h.id]=0;r.miss[h.id]=0});
-  if(!H.length)return r;
+  if(!H.length){PK=perksOn(today,1);return r}
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
   const FB=focusByDay();
   const SES={};for(const x of state.sessions){if(x.ok)(SES[x.d]||(SES[x.d]=[])).push(x)}
   let low=false,lastPerfect=null,prevRank=0;
   for(let d=start;d<=today;d=addDays(d,1)){
     const act=H.filter(h=>isActive(h,d)); if(!act.length)continue;
+    for(const p of state.perks)if(p.d===d&&PERKS[p.id])r.events.push({d,t:'gold',x:'Perk taken: '+PERKS[p.id].name});
+    PK=perksOn(d,levelInfo(r.xp).L);r.hollowCost=PK.unbroken?3:5;r.bonfireCap=PK.kindling?3:BONFIRE_MAX;
     let resting=false;
     if(rest[d]&&r.bonfires>0){r.bonfires--;resting=true;r.restDays[d]=true;r.events.push({d,t:'fire',x:'Rested at a bonfire'})}
     const lvBefore=levelInfo(r.xp).L, topBefore=r.maxLevel;
@@ -797,17 +857,20 @@ function compute(){
         if(h.diff===3){r.hardDone++;r.hardBest=Math.max(r.hardBest,r.streak[h.id])}
         if(h.kind==='count'&&v>=2*h.target)r.over++;
       }
-      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;r.missTotal[h.id]=(r.missTotal[h.id]||0)+1;dmg+=DMG[h.diff]*(1-f)*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)}}
-      {const hx=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1);gained+=hx;(r.hXP[d]||(r.hXP[d]={}))[h.id]=Math.round(hx);for(const c of hc)r.attrXP[c]+=hx}
+      else{all=false;if(ended&&!resting){r.streak[h.id]=0;r.miss[h.id]++;r.missTotal[h.id]=(r.missTotal[h.id]||0)+1;dmg+=DMG[h.diff]*(1-(PK.iron_stomach?Math.min(1,f*1.5):f))*escFor(r.miss[h.id])*(cur.marks&&cur.marks[h.id]?2:1)*(PK.thick_skin?.85:1)}}
+      {const hx=BASE[h.diff]*f*(f>=1?multFor(r.streak[h.id]):1)*(h.diff===3&&PK.taskmaster?1.2:1);gained+=hx;(r.hXP[d]||(r.hXP[d]={}))[h.id]=Math.round(hx);for(const c of hc)r.attrXP[c]+=hx*attrMul(c)}
     }
     if(cur.withering)gained*=.75;
     const fs=FB[d];
     if(fs){
-      gained+=cur.dulled?0:fs.min*FOCUS_XP;
-      if(!cur.dulled)for(const x of SES[d]||[])for(const c of (x.cats||[]))if(r.attrXP[c]!==undefined)r.attrXP[c]+=x.m*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
-      if(fs.quit){dmg+=QUIT_DMG*fs.quit;r.events.push({d,t:'bad',x:'Abandoned '+(fs.quit===1?'a focus session':fs.quit+' focus sessions')+': \u2212'+QUIT_DMG*fs.quit+' HP'})}
+      const fm=PK.deep_focus?1.25:1;
+      gained+=cur.dulled?0:fs.min*FOCUS_XP*fm;
+      if(!cur.dulled)for(const x of SES[d]||[])for(const c of (x.cats||[]))if(r.attrXP[c]!==undefined)r.attrXP[c]+=x.m*FOCUS_XP*fm*attrMul(c);r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
+      if(fs.quit){dmg+=quitDmg()*fs.quit;r.events.push({d,t:'bad',x:'Abandoned '+(fs.quit===1?'a focus session':fs.quit+' focus sessions')+': \u2212'+quitDmg()*fs.quit+' HP'})}
     }
     if(cur.brittle)dmg*=1.5;
+    if(PK.polymath&&CATS.every(c=>catDone[c]))gained*=1.1;
+    if(PK.flow_state&&fs&&fs.done>=4)gained*=1.1;
     r.xp+=gained; r.earned+=gained; r.dayXP[d]=Math.round(gained); r.heat[d]=sum/act.length;
     r.maxDone=Math.max(r.maxDone,done); if(done)r.daysActive++;
     {const bal=CATS.every(c=>catDone[c]), possible=CATS.every(c=>catHas[c]);
@@ -819,39 +882,41 @@ function compute(){
       r.perfect++;r.perfRun++;r.bestPerfRun=Math.max(r.bestPerfRun,r.perfRun);r.hp=Math.min(r.maxHp,r.hp+3);
       if(parse(d).getDay()===0&&lastPerfect===addDays(d,-1))r.weekends++;
       lastPerfect=d;
-      if(r.perfRun%7===0){
-        if(r.bonfires<BONFIRE_MAX){r.bonfires++;r.events.push({d,t:'fire',x:'Earned a bonfire (7 clean sweeps in a row)'})}
-        if(r.hollow>0){r.hollow=0;r.maxHp=calcMax(r);r.kindled++;r.events.push({d,t:'good',x:'Hollowing cured. Max HP back to '+r.maxHp})}
-      }
+      {const every=PK.firekeeper?5:7;if(r.perfRun%every===0&&r.bonfires<r.bonfireCap){r.bonfires++;r.events.push({d,t:'fire',x:'Earned a bonfire ('+every+' clean sweeps in a row)'})}}
+      if(r.perfRun%7===0&&r.hollow>0){r.hollow=0;r.maxHp=calcMax(r);r.kindled++;r.events.push({d,t:'good',x:'Hollowing cured. Max HP back to '+r.maxHp})}
+      if(PK.cleansed){const live=r.curses.filter(c=>c.start<=d&&d<c.end).sort((a,b)=>a.start<b.start?-1:1)[0];if(live){live.end=d;r.events.push({d,t:'good',x:'Cleansed: '+CURSES[live.id].name+' lifted'})}}
     }
     else if(ended&&!resting)r.perfRun=0;
     // bloodstain: recover it with a clean sweep on the next day, or lose it
     if(r.stain&&d>=r.stain.until){
-      if(all){r.xp+=r.stain.amt;r.recovered++;r.recoveredXP+=r.stain.amt;r.events.push({d,t:'good',x:'Recovered bloodstain: +'+r.stain.amt+' XP'});r.stain=null}
-      else if(ended){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'});r.stain=null}
+      if(all||(PK.light_sleeper&&done/act.length>=.8)){r.xp+=r.stain.amt;r.recovered++;r.recoveredXP+=r.stain.amt;r.events.push({d,t:'good',x:'Recovered bloodstain: +'+r.stain.amt+' XP'});r.stain=null}
+      else if(ended&&d>=(r.stain.expires||r.stain.until)){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'});r.stain=null}
     }
     if(ended){if(dmg>0)r.noDmgRun=0;else{r.noDmgRun++;r.bestNoDmg=Math.max(r.bestNoDmg,r.noDmgRun)}}
     if(dmg>0){r.hp-=dmg;r.dayDmg[d]=Math.round(dmg);if(r.hp>0&&r.hp<=10)low=true}
+    if(r.hp<=0&&PK.last_stand&&(!r.lastStand||d>=addDays(r.lastStand,14))){r.hp=1;r.lastStand=d;r.events.push({d,t:'good',x:'Last Stand: survived at 1 HP'})}
     if(r.hp<=0){
       const li=levelInfo(r.xp), nx=li.L>1?li.floor-need(li.L-1):0;
       if(r.stain){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'})}
-      const lostAmt=Math.round(r.xp-nx);r.stain=lostAmt>0?{amt:lostAmt,from:d,until:addDays(d,1)}:null;
+      const lostAmt=Math.round(r.xp-nx);r.stain=lostAmt>0?{amt:lostAmt,from:d,until:addDays(d,1),expires:addDays(d,PK.scavenger?2:1)}:null;
       r.xp=nx;r.ko++;r.lastKO=d;r.lastKOFrom=li.L;r.lastKOTo=levelInfo(nx).L;
       r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=calcMax(r);r.hp=r.maxHp;low=false;
       r.events.push({d,t:'bad',x:'Failed. Level '+r.lastKOFrom+' \u2192 '+r.lastKOTo+', max HP '+r.maxHp});
-      {const seed=hashStr(d+':'+r.ko), id=CURSE_IDS[seed%CURSE_IDS.length], c={id,start:addDays(d,1),end:addDays(d,CURSE_DAYS),from:d};
+      {const seed=hashStr(d+':'+r.ko), id=CURSE_IDS[seed%CURSE_IDS.length], cl=PK.warding?2:CURSE_DAYS, c={id,start:addDays(d,1),end:addDays(d,cl),from:d};
        if(id==='marked'){const pool=act.slice().sort((a,b)=>a.id<b.id?-1:1);c.habit=pool[(seed>>>8)%pool.length].id;c.habitName=pool[(seed>>>8)%pool.length].name}
        r.curses.push(c);r.lastCurse=c;
-       r.events.push({d,t:'bad',x:'Cursed: '+CURSES[id].name+(c.habit?' ('+c.habitName+')':'')+' for '+CURSE_DAYS+' days'})}
+       r.events.push({d,t:'bad',x:'Cursed: '+CURSES[id].name+(c.habit?' ('+c.habitName+')':'')+' for '+cl+' days'})}
     }
-    else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+(cur.sapped?0:REGEN))}
+    else if(ended){r.hp=resting?r.maxHp:Math.min(r.maxHp,r.hp+(cur.sapped?0:(PK.second_wind?3:REGEN)))}
     if(low&&r.hp>=r.maxHp){r.comeback=true;low=false}
     const lvNow=levelInfo(r.xp).L;
     if(lvNow>lvBefore)r.events.push({d,t:'gold',x:(lvNow>topBefore?'Reached level ':'Regained level ')+lvNow});
     r.maxLevel=Math.max(r.maxLevel,lvNow);
+    if(lvNow>topBefore)for(const L of PERK_LVS){if(L>topBefore&&L<=lvNow)r.events.push({d,t:'gold',x:'Perk available at level '+L})}
     for(const a of ACH){if(!r.unlocked[a.id]){const p=a.f(r);if(p[0]>=p[1]){r.unlocked[a.id]=d;r.events.push({d,t:'gold',x:'Unlocked: '+a.name})}}}
   }
   r.xp=Math.round(r.xp); r.earned=Math.round(r.earned); r.hp=Math.max(0,Math.round(r.hp));
+  PK=perksOn(today,levelInfo(r.xp).L);r.hollowCost=PK.unbroken?3:5;r.bonfireCap=PK.kindling?3:BONFIRE_MAX;
   return r;
 }
 function activeCurses(){return R?R.curses.filter(c=>c.start<=today&&today<=c.end):[]}
@@ -1007,7 +1072,7 @@ function rankNow(){const FB=focusByDay(),m=weekMinBefore(FB,today);return{min:m,
 let pbTab=(()=>{try{return localStorage.getItem('streakwork:pbTab')||'stat'}catch(e){return 'stat'}})();
 function setPbTab(t){
   pbTab=t;try{localStorage.setItem('streakwork:pbTab',t)}catch(e){}
-  for(const [k,id,tab] of [['stat','pbStat','pbTabStat'],['mbs','pbMbs','pbTabMbs'],['rank','pbRank','pbTabRank'],['log','pbLog','pbTabLog']]){$(id).hidden=k!==t;$(tab).setAttribute('aria-selected',k===t?'true':'false')}
+  for(const [k,id,tab] of [['stat','pbStat','pbTabStat'],['mbs','pbMbs','pbTabMbs'],['rank','pbRank','pbTabRank'],['perk','pbPerk','pbTabPerk'],['log','pbLog','pbTabLog']]){$(id).hidden=k!==t;$(tab).setAttribute('aria-selected',k===t?'true':'false')}
 }
 function segs(el,n,parts){ // parts: [[count,cls],...] filled from the left
   el.textContent='';let i=0;
@@ -1020,6 +1085,37 @@ const CAT_QUOTE={
   soul:['Work is love made visible.','Kahlil Gibran']
 };
 let mbsSel=(()=>{try{return localStorage.getItem('streakwork:mbs')||'mind'}catch(e){return 'mind'}})();
+let perkChoice=null;
+function perkSlots(){return PERK_LVS.filter(L=>L<=R.maxLevel)}
+function renderPerks(){
+  const curL=levelInfo(R.xp).L, taken={};for(const p of state.perks)taken[p.lv]=p;
+  const open=perkSlots().filter(L=>!taken[L]), slot=open[0];
+  $('pbTabPerk').textContent=open.length?'PERKS ◆':'PERKS';
+  const pick=$('perkPick');pick.textContent='';
+  if(slot){
+    const tier=tierFor(slot), owned=new Set(state.perks.map(p=>p.id));
+    const h=document.createElement('div');h.className='pk-h';h.textContent='CHOOSE A PERK · LV '+slot+(open.length>1?' · '+open.length+' WAITING':'');
+    const sub=document.createElement('div');sub.className='pk-s';sub.textContent='TIERS I'+(tier>=2?'–'+TIER_NAME[tier]:'')+' AVAILABLE';
+    pick.append(h,sub);
+    const ul=document.createElement('ol');ul.className='perks pick';
+    for(const id of Object.keys(PERKS)){const P=PERKS[id];if(P.t>tier||owned.has(id))continue;
+      const li=document.createElement('li');const b=document.createElement('button');b.type='button';b.className='pk-opt';b.setAttribute('aria-pressed',perkChoice===id?'true':'false');
+      const n=document.createElement('span');n.className='pk-n';n.textContent=P.name;const t=document.createElement('span');t.className='pk-t';t.textContent='TIER '+TIER_NAME[P.t];
+      const d=document.createElement('span');d.className='pk-d';d.textContent=P.desc;
+      b.append(n,t,d);b.addEventListener('click',()=>{perkChoice=perkChoice===id?null:id;renderPerks()});li.appendChild(b);ul.appendChild(li)}
+    pick.appendChild(ul);
+    if(perkChoice&&PERKS[perkChoice]){const go=document.createElement('button');go.type='button';go.className='pk-take';go.textContent='TAKE '+PERKS[perkChoice].name.toUpperCase();
+      go.addEventListener('click',()=>{state.perks.push({id:perkChoice,lv:slot,d:today});const nm=PERKS[perkChoice].name;perkChoice=null;commit();toast('Perk: '+nm,true)});pick.appendChild(go)}
+  }
+  const ol=$('perkList');ol.textContent='';
+  const mine=state.perks.slice().sort((a,b)=>a.lv-b.lv);
+  if(!mine.length&&!slot){const li=document.createElement('li');li.className='pk-none';li.textContent='NO PERKS YET';ol.appendChild(li)}
+  for(const p of mine){const P=PERKS[p.id];if(!P)continue;const li=document.createElement('li');const lost=p.lv>curL;li.className='pk-own'+(lost?' lost':'');
+    const top=document.createElement('div');top.className='pk-row';const n=document.createElement('span');n.className='pk-n';n.textContent=P.name;const lv=document.createElement('span');lv.textContent=lost?'LOST · REGAIN AT LV '+p.lv:'LV '+p.lv;top.append(n,lv);
+    const d=document.createElement('div');d.className='pk-d';d.textContent=P.desc;li.append(top,d);ol.appendChild(li)}
+  const next=PERK_LVS.find(L=>L>R.maxLevel);
+  $('perkFoot').textContent=(next?'NEXT PERK AT LV '+next:'')+(slot?'':'')+' · '+mine.length+' OWNED';
+}
 function renderMbs(){
   const ol=$('mbsList');ol.textContent='';
   for(const c of CATS){
@@ -1045,7 +1141,7 @@ function renderHud(){
   const li=levelInfo(R.xp), k=rankNow(), N=20;
   // STAT
   const t=$('rankTitle');t.textContent='Level '+li.L+' '+rankName(k.rank);t.classList.toggle('cold',!k.rank);
-  const cap=R.maxHp+5*R.hollow, hpOn=Math.round(R.hp/cap*N), hol=Math.round(5*R.hollow/cap*N);
+  const cap=R.maxHp+R.hollowCost*R.hollow, hpOn=Math.round(R.hp/cap*N), hol=Math.round(R.hollowCost*R.hollow/cap*N);
   segs($('segHp'),N,[[hpOn,'hp'],[N-hpOn-hol,''],[hol,'hollow']]);
   $('segHp').setAttribute('aria-valuenow',R.hp);$('segHp').setAttribute('aria-valuemax',R.maxHp);$('hpText').textContent=R.hp+'/'+R.maxHp;
   segs($('segXp'),N,[[Math.floor(li.into/li.span*N),'xp']]);
@@ -1055,10 +1151,11 @@ function renderHud(){
   const st=$('hudStatus');st.textContent='';
   const chip=(label,val,cls)=>{const sp=document.createElement('span');if(cls)sp.className=cls;sp.textContent=label+' '+val;st.appendChild(sp)};
   chip('FAILURES',R.ko,R.ko?'bad':'');
-  chip('BONFIRES',R.bonfires+'/'+BONFIRE_MAX,R.bonfires?'fire':'');
+  chip('BONFIRES',R.bonfires+'/'+R.bonfireCap,R.bonfires?'fire':'');
   if(R.hollow)chip('HOLLOW',R.hollow,'bad');
   const ac=activeCurses();if(ac.length)chip('CURSED',ac.length,'bad');
   renderMbs();
+  renderPerks();
   renderCurses(ac);
   // RANK
   $('rkName').textContent=rankName(k.rank);$('rkName').classList.toggle('cold',!k.rank);
@@ -1116,8 +1213,8 @@ function projectedDmg(){
   if(R.restDays[today])return{dmg:0,rest:true};
   const day=state.log[today]||{},ac=activeCurses();let dmg=0;
   for(const h of activeOn(today)){const f=fracOf(h,day[h.id]);if(f>=1)continue;
-    dmg+=DMG[h.diff]*(1-f)*escFor((R.miss[h.id]||0)+1)*(cursedHabit(h.id)?2:1)}
-  const q=(focusByDay()[today]||{}).quit||0;dmg+=QUIT_DMG*q;
+    dmg+=DMG[h.diff]*(1-(PK.iron_stomach?Math.min(1,f*1.5):f))*escFor((R.miss[h.id]||0)+1)*(cursedHabit(h.id)?2:1)*(PK.thick_skin?.85:1)}
+  const q=(focusByDay()[today]||{}).quit||0;dmg+=quitDmg()*q;
   if(ac.some(c=>c.id==='brittle'))dmg*=1.5;
   return{dmg:Math.round(dmg),rest:false};
 }
@@ -1645,7 +1742,7 @@ function renderFocus(){
   // actions
   const act=$('timerActions');act.textContent='';
   const btn=(t,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className=cls;b.textContent=t;b.addEventListener('click',fn);act.appendChild(b);return b};
-  if(f&&f.phase==='focus'){btn('Abandon','btn danger',()=>{$('quitDmg').textContent=QUIT_DMG;$('quitConfirm').hidden=false})}
+  if(f&&f.phase==='focus'){btn('Abandon','btn danger',()=>{$('quitDmg').textContent=quitDmg();$('quitConfirm').hidden=false})}
   else if(f&&f.phase==='break'){btn('End break','btn ghost',()=>{state.focus={phase:'ready',after:'break'};holdScreen(false);state.updated=Date.now();cache();renderFocus()})}
   else if(f&&f.after==='focus'){const nb=nextBreak();btn('Start '+(nb.long?'long ':'')+'break','btn primary',()=>startPhase('break',nb.m));btn('Skip break','btn ghost',()=>startPhase('focus',p.f))}
   else btn('Start focus · '+p.f+' min','btn primary',()=>startPhase('focus',p.f));
@@ -1668,7 +1765,7 @@ function renderFocus(){
     const dt=new Date(x.e);tm.textContent=(x.d===today?'':fmt(x.d)+' ')+dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     const sp=document.createElement('span');
     if(x.ok){sp.textContent=x.m+' min '+((x.cats&&x.cats.length)?x.cats.map(c=>CAT_NAME[c]).join(' + '):'focus')+' · +'+Math.round(x.m*FOCUS_XP)+' XP';}
-    else{sp.className='bad';sp.textContent='Abandoned after '+Math.max(0,Math.floor((x.e-x.s)/60000))+' of '+x.m+' min · −'+QUIT_DMG+' HP';}
+    else{sp.className='bad';sp.textContent='Abandoned after '+Math.max(0,Math.floor((x.e-x.s)/60000))+' of '+x.m+' min · −'+quitDmg()+' HP';}
     li.append(tm,sp);ol.appendChild(li);
   }
 }
@@ -1676,7 +1773,7 @@ $('quitNo').addEventListener('click',()=>{$('quitConfirm').hidden=true});
 $('quitYes').addEventListener('click',()=>{
   const f=state.focus;if(!f||f.phase!=='focus')return;
   state.sessions.push({s:f.startedAt,e:Date.now(),m:f.m,ok:0,d:today});
-  state.focus=null;$('quitConfirm').hidden=true;holdScreen(false);commit();renderFocus();toast('Session abandoned · −'+QUIT_DMG+' HP');
+  state.focus=null;$('quitConfirm').hidden=true;holdScreen(false);commit();renderFocus();toast('Session abandoned · −'+quitDmg()+' HP');
 });
 function renderPresetForm(){
   const box=$('presetFields');box.textContent='';
