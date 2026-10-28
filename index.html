@@ -394,6 +394,9 @@ li.done .ql-name{color:var(--a55)}
 .cat-pick button{height:40px;border:2px solid var(--line);background:var(--bg);color:var(--muted);font-family:var(--f-display);font-size:19px;letter-spacing:.04em}
 .cat-pick button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--ink)}
 
+.focus-cats{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-family:var(--f-display);font-size:16px;color:var(--muted);letter-spacing:.06em}
+.focus-cats .cat-pick button:disabled{opacity:.7}
+
 /* Tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:var(--bg);border-top:2px solid var(--line);
   padding-bottom:var(--tabPad,env(safe-area-inset-bottom,0px));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -543,6 +546,7 @@ li.done .ql-name{color:var(--a55)}
       <li>Streaks raise XP: +10% per full week of streak, up to +50%.</li>
       <li>Levels get steep fast: each needs 30% more XP than the last through level 10, then 33% more through level 20. Level 20 takes about two years of near-perfect days.</li>
       <li>Unfinished tasks deal damage when the day ends. Partial progress reduces the damage. Each consecutive miss of the same task hits harder: ×1, ×1.5, ×2, up to ×3.</li>
+      <li>Max HP starts at 50 and grows by 3 for every Body level.</li>
       <li>HP regenerates 2 per day on its own. Each finished task heals 1 more, and finishing every task in a day heals 3 more.</li>
       <li>At 0 HP you fail: you drop to the start of the previous level. The XP you lost stays as a bloodstain. Finish every task the next day to recover it, or it is gone for good.</li>
       <li>Each failure hollows you: max HP drops by 5, down to 25. Seven clean sweeps in a row restore it.</li>
@@ -575,6 +579,7 @@ li.done .ql-name{color:var(--a55)}
   <div class="view" id="viewFocus" hidden>
     <div class="sec-head hist-top"><h2>Focus</h2><button type="button" class="link quiet" id="presetEditBtn">Edit presets</button></div>
     <div class="presets" id="presetRow" role="radiogroup" aria-label="Preset"></div>
+    <div class="focus-cats"><span>FOR</span><div class="cat-pick" id="focusCats" role="group" aria-label="Session counts toward"></div></div>
     <section class="timer" aria-live="off">
       <svg viewBox="0 0 220 220" class="ring" aria-hidden="true">
         <circle cx="110" cy="110" r="96" class="ring-track"/>
@@ -608,7 +613,7 @@ li.done .ql-name{color:var(--a55)}
       <div class="sec-head"><h3 id="sessH">Recent sessions</h3></div>
       <ol class="events" id="sessionList"></ol>
     </section>
-    <p class="rules">Finished focus sessions earn half an XP per minute. Sessions can’t be paused. Abandoning one costs 5 HP and earns nothing. Breaks can be skipped freely. The timer keeps time if you leave the app, but your phone can’t alert you when it ends unless the app is open.</p>
+    <p class="rules">Finished focus sessions earn half an XP per minute, which also goes to whichever of Mind, Body and Soul you pick. Sessions can’t be paused. Abandoning one costs 5 HP and earns nothing. Breaks can be skipped freely. The timer keeps time if you leave the app, but your phone can’t alert you when it ends unless the app is open.</p>
   </div>
 
   <div class="view" id="viewHistory" hidden>
@@ -698,7 +703,9 @@ li.done .ql-name{color:var(--a55)}
 <script>
 (function(){
 const KEY='streakwork:v1';
-const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5, CURSE_DAYS=3;
+const BASE={1:10,2:20,3:35}, DMG={1:4,2:7,3:12}, HPMAX=50, REGEN=2, EDIT_DAYS=7, BONFIRE_MAX=2, HOLLOW_MAX=5, FOCUS_XP=0.5, QUIT_DMG=5, CURSE_DAYS=3, BODY_HP=3;
+// Max HP: 50, +3 per Body level above 1, \u22125 per hollowing
+function calcMax(r){return HPMAX+BODY_HP*(attrInfo(r.attrXP.body).L-1)-5*r.hollow}
 const CURSES={
   withering:{name:'Withering',desc:'Tasks earn 25% less XP'},
   brittle:{name:'Brittle',desc:'All damage \u00d71.5'},
@@ -734,6 +741,7 @@ function normalize(){
     {id:'p1',name:'Classic',f:25,b:5,lb:15,n:4},
     {id:'p2',name:'Deep work',f:50,b:10,lb:20,n:3}];
   if(!state.presets.some(p=>p.id===state.presetId))state.presetId=state.presets[0].id;
+  if(!Array.isArray(state.focusCats))state.focusCats=['mind'];
   if(state.focus&&typeof state.focus!=='object')state.focus=null;
   state.updated=state.updated||0; state.v=1;
 }
@@ -768,6 +776,7 @@ function compute(){
   if(!H.length)return r;
   const start=H.reduce((m,h)=>h.created<m?h.created:m,today);
   const FB=focusByDay();
+  const SES={};for(const x of state.sessions){if(x.ok)(SES[x.d]||(SES[x.d]=[])).push(x)}
   let low=false,lastPerfect=null,prevRank=0;
   for(let d=start;d<=today;d=addDays(d,1)){
     const act=H.filter(h=>isActive(h,d)); if(!act.length)continue;
@@ -794,7 +803,8 @@ function compute(){
     if(cur.withering)gained*=.75;
     const fs=FB[d];
     if(fs){
-      gained+=cur.dulled?0:fs.min*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
+      gained+=cur.dulled?0:fs.min*FOCUS_XP;
+      if(!cur.dulled)for(const x of SES[d]||[])for(const c of (x.cats||[]))if(r.attrXP[c]!==undefined)r.attrXP[c]+=x.m*FOCUS_XP;r.focusDone+=fs.done;r.focusMin+=fs.min;r.focusQuit+=fs.quit;r.dayFocus[d]=fs;
       if(fs.quit){dmg+=QUIT_DMG*fs.quit;r.events.push({d,t:'bad',x:'Abandoned '+(fs.quit===1?'a focus session':fs.quit+' focus sessions')+': \u2212'+QUIT_DMG*fs.quit+' HP'})}
     }
     if(cur.brittle)dmg*=1.5;
@@ -803,14 +813,15 @@ function compute(){
     {const bal=CATS.every(c=>catDone[c]), possible=CATS.every(c=>catHas[c]);
      if(bal){r.balanced++;r.balRun++;r.bestBalRun=Math.max(r.bestBalRun,r.balRun)}
      else if(ended&&possible&&!resting)r.balRun=0;}
-    for(const c of CATS){const L=attrInfo(r.attrXP[c]).L;if(L>attrBefore[c])r.events.push({d,t:'gold',x:CAT_NAME[c]+' reached level '+L})}
+    for(const c of CATS){const L=attrInfo(r.attrXP[c]).L;if(L>attrBefore[c])r.events.push({d,t:'gold',x:CAT_NAME[c]+' reached level '+L+(c==='body'?' (+'+BODY_HP*(L-attrBefore[c])+' max HP)':'')})}
+    {const nm=calcMax(r);if(nm>r.maxHp){r.hp+=nm-r.maxHp}r.maxHp=nm;r.hp=Math.min(r.hp,r.maxHp)}
     if(all){
       r.perfect++;r.perfRun++;r.bestPerfRun=Math.max(r.bestPerfRun,r.perfRun);r.hp=Math.min(r.maxHp,r.hp+3);
       if(parse(d).getDay()===0&&lastPerfect===addDays(d,-1))r.weekends++;
       lastPerfect=d;
       if(r.perfRun%7===0){
         if(r.bonfires<BONFIRE_MAX){r.bonfires++;r.events.push({d,t:'fire',x:'Earned a bonfire (7 clean sweeps in a row)'})}
-        if(r.hollow>0){r.hollow=0;r.maxHp=HPMAX;r.kindled++;r.events.push({d,t:'good',x:'Hollowing cured. Max HP back to '+HPMAX})}
+        if(r.hollow>0){r.hollow=0;r.maxHp=calcMax(r);r.kindled++;r.events.push({d,t:'good',x:'Hollowing cured. Max HP back to '+r.maxHp})}
       }
     }
     else if(ended&&!resting)r.perfRun=0;
@@ -826,7 +837,7 @@ function compute(){
       if(r.stain){r.stainLost={amt:r.stain.amt,d:d};r.events.push({d,t:'bad',x:'Bloodstain lost: '+r.stain.amt+' XP gone'})}
       const lostAmt=Math.round(r.xp-nx);r.stain=lostAmt>0?{amt:lostAmt,from:d,until:addDays(d,1)}:null;
       r.xp=nx;r.ko++;r.lastKO=d;r.lastKOFrom=li.L;r.lastKOTo=levelInfo(nx).L;
-      r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=HPMAX-5*r.hollow;r.hp=r.maxHp;low=false;
+      r.hollow=Math.min(HOLLOW_MAX,r.hollow+1);r.maxHp=calcMax(r);r.hp=r.maxHp;low=false;
       r.events.push({d,t:'bad',x:'Failed. Level '+r.lastKOFrom+' \u2192 '+r.lastKOTo+', max HP '+r.maxHp});
       {const seed=hashStr(d+':'+r.ko), id=CURSE_IDS[seed%CURSE_IDS.length], c={id,start:addDays(d,1),end:addDays(d,CURSE_DAYS),from:d};
        if(id==='marked'){const pool=act.slice().sort((a,b)=>a.id<b.id?-1:1);c.habit=pool[(seed>>>8)%pool.length].id;c.habitName=pool[(seed>>>8)%pool.length].name}
@@ -1025,15 +1036,16 @@ function renderMbs(){
   const ds=document.createElement('figure');ds.className='mbs-q';const bq=document.createElement('blockquote');bq.textContent='\u201c'+CAT_QUOTE[c][0]+'\u201d';const fc=document.createElement('figcaption');fc.textContent='\u2014 '+CAT_QUOTE[c][1];ds.append(bq,fc);
   const tasks=state.habits.filter(t=>!t.archived||t.archived>today).filter(t=>catsOf(t).includes(c));
   const tod=tasks.filter(t=>isActive(t,today)),dn=tod.filter(t=>fracOf(t,(state.log[today]||{})[t.id])>=1).length;
+  const hb=document.createElement('div');hb.className='mbs-s';hb.hidden=c!=='body';hb.textContent='+'+BODY_HP*(a.L-1)+' MAX HP \u00b7 +'+BODY_HP+' PER LEVEL';
   const td=document.createElement('div');td.className='mbs-s';td.textContent='TODAY '+dn+'/'+tod.length+' \u00b7 '+tasks.length+' TASK'+(tasks.length===1?'':'S');
   const tl=document.createElement('div');tl.className='mbs-t';tl.textContent=tasks.length?tasks.map(t=>t.name).join(' \u00b7 '):'No tasks in '+CAT_NAME[c]+' yet. Add one from Edit.';
-  det.append(h,m,xp,td,ds,tl);
+  det.append(h,m,xp,hb,td,ds,tl);
 }
 function renderHud(){
   const li=levelInfo(R.xp), k=rankNow(), N=20;
   // STAT
   const t=$('rankTitle');t.textContent='Level '+li.L+' '+rankName(k.rank);t.classList.toggle('cold',!k.rank);
-  const hpOn=Math.round(R.hp/HPMAX*N), hol=Math.round((HPMAX-R.maxHp)/HPMAX*N);
+  const cap=R.maxHp+5*R.hollow, hpOn=Math.round(R.hp/cap*N), hol=Math.round(5*R.hollow/cap*N);
   segs($('segHp'),N,[[hpOn,'hp'],[N-hpOn-hol,''],[hol,'hollow']]);
   $('segHp').setAttribute('aria-valuenow',R.hp);$('segHp').setAttribute('aria-valuemax',R.maxHp);$('hpText').textContent=R.hp+'/'+R.maxHp;
   segs($('segXp'),N,[[Math.floor(li.into/li.span*N),'xp']]);
@@ -1562,9 +1574,11 @@ function chime(){
   try{
     if(!audioCtx)return;audioCtx.resume&&audioCtx.resume();
     const t0=audioCtx.currentTime;
-    [0,.32,.64].forEach((o,i)=>{const os=audioCtx.createOscillator(),g=audioCtx.createGain();os.type='square';os.frequency.value=i===2?988:784;
-      g.gain.setValueAtTime(.0001,t0+o);g.gain.exponentialRampToValueAtTime(.18,t0+o+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+o+.26);
-      os.connect(g);g.connect(audioCtx.destination);os.start(t0+o);os.stop(t0+o+.3)});
+    for(let rep=0;rep<3;rep++){
+      [0,.3,.6].forEach((o,i)=>{const at=t0+rep*1.4+o,os=audioCtx.createOscillator(),g=audioCtx.createGain();os.type='square';os.frequency.value=i===2?988:784;
+        g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(.35,at+.02);g.gain.exponentialRampToValueAtTime(.0001,at+.26);
+        os.connect(g);g.connect(audioCtx.destination);os.start(at);os.stop(at+.3)});
+    }
   }catch(e){}
 }
 async function holdScreen(on){
@@ -1573,11 +1587,14 @@ async function holdScreen(on){
     if(!on&&wakeLock){await wakeLock.release();wakeLock=null}
   }catch(e){wakeLock=null}
 }
-function unlockAudio(){try{if(!audioCtx){const A=window.AudioContext||window.webkitAudioContext;if(A)audioCtx=new A()}audioCtx&&audioCtx.resume&&audioCtx.resume()}catch(e){}}
+function unlockAudio(){try{
+  // Play as media so the chime is heard even with the ringer switch on silent (iOS 17+)
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(!audioCtx){const A=window.AudioContext||window.webkitAudioContext;if(A)audioCtx=new A()}audioCtx&&audioCtx.resume&&audioCtx.resume()}catch(e){}}
 function startPhase(phase,minutes){
   unlockAudio();
   const now=Date.now();
-  state.focus={phase,preset:preset().id,startedAt:now,endsAt:now+minutes*60000,m:minutes};
+  state.focus={phase,preset:preset().id,startedAt:now,endsAt:now+minutes*60000,m:minutes,cats:phase==='focus'?state.focusCats.slice():[]};
   $('quitConfirm').hidden=true;
   state.updated=Date.now();cache();holdScreen(true);renderFocus();
 }
@@ -1585,7 +1602,7 @@ function checkFocus(){
   const f=state.focus;if(!f||f.phase==='ready')return;
   if(Date.now()<f.endsAt)return;
   if(f.phase==='focus'){
-    state.sessions.push({s:f.startedAt,e:f.endsAt,m:f.m,ok:1,d:ymd(new Date(f.endsAt))});
+    state.sessions.push({s:f.startedAt,e:f.endsAt,m:f.m,ok:1,d:ymd(new Date(f.endsAt)),cats:(f.cats||[]).slice()});
     state.focus={phase:'ready',after:'focus'};
     if(document.visibilityState==='visible')chime();
     holdScreen(false);commit();
@@ -1608,6 +1625,9 @@ function renderFocus(){
     b.addEventListener('click',()=>{state.presetId=x.id;state.updated=Date.now();cache();renderFocus()});row.appendChild(b);
   }
   $('presetEditBtn').disabled=!!running;
+  {const box=$('focusCats');box.textContent='';const sel=running&&f.phase==='focus'?(f.cats||[]):state.focusCats;
+   for(const c of CATS){const b=document.createElement('button');b.type='button';b.textContent=CAT_NAME[c];b.setAttribute('aria-pressed',sel.includes(c)?'true':'false');b.disabled=!!running;
+     b.addEventListener('click',()=>{state.focusCats=state.focusCats.includes(c)?state.focusCats.filter(x=>x!==c):state.focusCats.concat(c);state.updated=Date.now();cache();renderFocus()});box.appendChild(b)}}
   // clock
   const timer=document.querySelector('.timer');timer.classList.toggle('brk',!!(f&&f.phase==='break'));
   let label='Ready',sub='',left=p.f*60000,frac=0;
@@ -1647,7 +1667,7 @@ function renderFocus(){
     const li=document.createElement('li');const tm=document.createElement('time');
     const dt=new Date(x.e);tm.textContent=(x.d===today?'':fmt(x.d)+' ')+dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     const sp=document.createElement('span');
-    if(x.ok){sp.textContent=x.m+' min focus · +'+Math.round(x.m*FOCUS_XP)+' XP';}
+    if(x.ok){sp.textContent=x.m+' min '+((x.cats&&x.cats.length)?x.cats.map(c=>CAT_NAME[c]).join(' + '):'focus')+' · +'+Math.round(x.m*FOCUS_XP)+' XP';}
     else{sp.className='bad';sp.textContent='Abandoned after '+Math.max(0,Math.floor((x.e-x.s)/60000))+' of '+x.m+' min · −'+QUIT_DMG+' HP';}
     li.append(tm,sp);ol.appendChild(li);
   }
